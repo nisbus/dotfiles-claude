@@ -1,0 +1,25 @@
+# Backup files
+*.backup
+*~
+*.swp
+*.swo
+
+# Emacs
+\#*\#
+.\#*
+*.elc
+auto-save-list
+elpa/
+
+# Compiled files
+*.o
+*.hi
+*.errors
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp

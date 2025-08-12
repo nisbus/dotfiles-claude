@@ -1,0 +1,6 @@
+#!/bin/sh
+# Set Caps Lock as Ctrl
+setxkbmap -option ctrl:nocaps
+
+# Start Emacs with EXWM
+exec emacs --eval "(require 'exwm)" --eval "(require 'exwm-config)" --eval "(exwm-config-default)"
