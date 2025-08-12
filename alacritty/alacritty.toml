@@ -1,0 +1,149 @@
+# Alacritty Configuration
+# Modern, GPU-accelerated terminal emulator
+
+[window]
+padding = { x = 10, y = 10 }
+decorations = "full"
+opacity = 0.95
+startup_mode = "Windowed"
+title = "Alacritty"
+dynamic_title = true
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[font]
+size = 12.0
+
+[font.normal]
+family = "JetBrains Mono"
+style = "Regular"
+
+[font.bold]
+family = "JetBrains Mono"
+style = "Bold"
+
+[font.italic]
+family = "JetBrains Mono"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrains Mono"
+style = "Bold Italic"
+
+# Alternative fonts (uncomment to use)
+# [font.normal]
+# family = "Fira Code"
+# family = "Hack"
+# family = "Cascadia Code"
+
+[colors]
+# Catppuccin Mocha theme
+[colors.primary]
+background = "#1e1e2e"
+foreground = "#cdd6f4"
+dim_foreground = "#7f849c"
+bright_foreground = "#cdd6f4"
+
+[colors.cursor]
+text = "#1e1e2e"
+cursor = "#f5e0dc"
+
+[colors.vi_mode_cursor]
+text = "#1e1e2e"
+cursor = "#b4befe"
+
+[colors.search.matches]
+foreground = "#1e1e2e"
+background = "#a6adc8"
+
+[colors.search.focused_match]
+foreground = "#1e1e2e"
+background = "#a6e3a1"
+
+[colors.footer_bar]
+foreground = "#1e1e2e"
+background = "#a6adc8"
+
+[colors.hints.start]
+foreground = "#1e1e2e"
+background = "#f9e2af"
+
+[colors.hints.end]
+foreground = "#1e1e2e"
+background = "#89b4fa"
+
+[colors.selection]
+text = "#1e1e2e"
+background = "#f5e0dc"
+
+[colors.normal]
+black = "#45475a"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#f5c2e7"
+cyan = "#94e2d5"
+white = "#bac2de"
+
+[colors.bright]
+black = "#585b70"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#f5c2e7"
+cyan = "#94e2d5"
+white = "#a6adc8"
+
+[colors.dim]
+black = "#45475a"
+red = "#f38ba8"
+green = "#a6e3a1"
+yellow = "#f9e2af"
+blue = "#89b4fa"
+magenta = "#f5c2e7"
+cyan = "#94e2d5"
+white = "#bac2de"
+
+[bell]
+animation = "EaseOutExpo"
+duration = 0
+color = "#ffffff"
+
+[selection]
+save_to_clipboard = true
+
+[cursor]
+style = { shape = "Block", blinking = "On" }
+vi_mode_style = { shape = "Block", blinking = "On" }
+blink_interval = 750
+unfocused_hollow = true
+thickness = 0.15
+
+[terminal]
+shell = { program = "/usr/bin/zsh" }
+
+[mouse]
+hide_when_typing = true
+
+[keyboard]
+bindings = [
+    # Copy/Paste
+    { key = "C", mods = "Control|Shift", action = "Copy" },
+    { key = "V", mods = "Control|Shift", action = "Paste" },
+    { key = "Insert", mods = "Shift", action = "PasteSelection" },
+    
+    # Font size
+    { key = "Plus", mods = "Control", action = "IncreaseFontSize" },
+    { key = "Minus", mods = "Control", action = "DecreaseFontSize" },
+    { key = "Key0", mods = "Control", action = "ResetFontSize" },
+    
+    # Scrolling
+    { key = "PageUp", mods = "Shift", action = "ScrollPageUp" },
+    { key = "PageDown", mods = "Shift", action = "ScrollPageDown" },
+    { key = "Home", mods = "Shift", action = "ScrollToTop" },
+    { key = "End", mods = "Shift", action = "ScrollToBottom" },
+]

@@ -81,6 +81,32 @@ if [ -n "$DISPLAY" ]; then
     setxkbmap -option ctrl:nocaps
 fi
 
+# Install Claude Code
+echo -e "\n${YELLOW}Would you like to install Claude Code? (y/n)${NC}"
+read -r INSTALL_CLAUDE
+if [[ "$INSTALL_CLAUDE" =~ ^[Yy]$ ]]; then
+    if [ -f "$DOTFILES_DIR/claude/install-claude.sh" ]; then
+        bash "$DOTFILES_DIR/claude/install-claude.sh"
+        
+        # Copy Claude configuration if it exists
+        if [ -d "$DOTFILES_DIR/claude/dot-claude" ]; then
+            echo -e "${GREEN}Setting up Claude configuration...${NC}"
+            mkdir -p ~/.claude
+            cp -r "$DOTFILES_DIR/claude/dot-claude/"* ~/.claude/ 2>/dev/null || true
+            echo -e "${GREEN}Claude configuration copied.${NC}"
+        fi
+    fi
+fi
+
+# Optional: Install Barrier for keyboard/mouse sharing
+echo -e "\n${YELLOW}Would you like to install Barrier for keyboard/mouse sharing? (y/n)${NC}"
+read -r INSTALL_BARRIER
+if [[ "$INSTALL_BARRIER" =~ ^[Yy]$ ]]; then
+    if [ -f "$DOTFILES_DIR/barrier/barrier-setup.sh" ]; then
+        bash "$DOTFILES_DIR/barrier/barrier-setup.sh"
+    fi
+fi
+
 echo -e "\n${GREEN}Installation complete!${NC}"
 echo -e "${YELLOW}Note: You may need to:${NC}"
 echo "  1. Restart your shell or run 'source ~/.zshrc' for ZSH changes"
