@@ -2,6 +2,29 @@
 # Set Caps Lock as Ctrl
 setxkbmap -option ctrl:nocaps
 
+# Auto-configure external monitors
+# Get the primary display (usually eDP-1, eDP1, or LVDS-1 for laptops)
+PRIMARY=$(xrandr | grep " connected primary" | cut -d' ' -f1)
+# If no primary is set, try to find the laptop display
+if [ -z "$PRIMARY" ]; then
+    PRIMARY=$(xrandr | grep -E "^(eDP|LVDS|LVDS-?[0-9]|eDP-?[0-9]) connected" | head -n1 | cut -d' ' -f1)
+fi
+
+# Configure any connected external monitors
+if [ -n "$PRIMARY" ]; then
+    # Find all connected monitors except the primary
+    EXTERNALS=$(xrandr | grep " connected" | grep -v "$PRIMARY" | cut -d' ' -f1)
+    
+    if [ -n "$EXTERNALS" ]; then
+        # Position each external monitor to the right of the previous one
+        PREVIOUS="$PRIMARY"
+        for MONITOR in $EXTERNALS; do
+            xrandr --output "$MONITOR" --auto --right-of "$PREVIOUS"
+            PREVIOUS="$MONITOR"
+        done
+    fi
+fi
+
 # Set environment variable to indicate EXWM session
 export EXWM=1
 
