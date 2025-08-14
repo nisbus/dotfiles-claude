@@ -50,14 +50,40 @@ setup_autorandr_profiles() {
     if [ -n "$EXTERNAL_DISPLAY" ]; then
         echo "External display detected: $EXTERNAL_DISPLAY"
         
-        # Create dual monitor profile (external as primary)
-        echo "Creating dual monitor profile..."
-        xrandr --output "$EXTERNAL_DISPLAY" --primary --auto \
-               --output "$LAPTOP_DISPLAY" --auto --right-of "$EXTERNAL_DISPLAY"
+        # First, save the current configuration if it looks reasonable
+        # (both monitors are on and positioned)
+        CURRENT_STATE=$(xrandr --current)
+        if echo "$CURRENT_STATE" | grep -q "$EXTERNAL_DISPLAY.*[0-9]\+x[0-9]\+"; then
+            if echo "$CURRENT_STATE" | grep -q "$LAPTOP_DISPLAY.*[0-9]\+x[0-9]\+"; then
+                echo "Current dual monitor configuration detected"
+                echo "Saving current configuration as 'current'..."
+                autorandr --save current
+                echo "✓ Current configuration saved"
+                
+                # Check if external is primary in current config
+                if echo "$CURRENT_STATE" | grep -q "$EXTERNAL_DISPLAY.*primary"; then
+                    echo "External display is primary in current setup"
+                    # Copy current to dual
+                    cp -r "$HOME/.config/autorandr/current" "$HOME/.config/autorandr/dual" 2>/dev/null || true
+                    echo "✓ Current configuration also saved as 'dual'"
+                fi
+            fi
+        fi
         
-        # Save the dual monitor profile
-        autorandr --save dual
-        echo "✓ Dual monitor profile saved"
+        # If no valid current config, create standard dual monitor profile
+        if [ ! -d "$HOME/.config/autorandr/dual" ]; then
+            echo "Creating standard dual monitor profile..."
+            # Get the best resolution for each display
+            EXTERNAL_RES=$(xrandr --query | grep -A1 "^$EXTERNAL_DISPLAY connected" | tail -1 | awk '{print $1}')
+            LAPTOP_RES=$(xrandr --query | grep -A1 "^$LAPTOP_DISPLAY connected" | tail -1 | awk '{print $1}')
+            
+            xrandr --output "$EXTERNAL_DISPLAY" --primary --mode "$EXTERNAL_RES" \
+                   --output "$LAPTOP_DISPLAY" --mode "$LAPTOP_RES" --right-of "$EXTERNAL_DISPLAY"
+            
+            # Save the dual monitor profile
+            autorandr --save dual
+            echo "✓ Dual monitor profile saved"
+        fi
         
         # Create external-only profile
         echo "Creating external-only profile..."
@@ -84,6 +110,8 @@ setup_autorandr_profiles() {
     if [ -n "$EXTERNAL_DISPLAY" ]; then
         autorandr --default dual
         echo "✓ Set 'dual' as default profile"
+        # Apply the dual profile now
+        autorandr dual
     else
         autorandr --default laptop
         echo "✓ Set 'laptop' as default profile"
