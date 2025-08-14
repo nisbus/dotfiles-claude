@@ -89,12 +89,61 @@ if [ -f "$SCRIPT_DIR/monitor/setup-monitors.sh" ]; then
     bash "$SCRIPT_DIR/monitor/setup-monitors.sh"
 fi
 
-# Setup networkmanager_dmenu if script exists
-if [ -f "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh" ]; then
-    echo ""
-    echo "Setting up NetworkManager dmenu interface..."
-    bash "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh"
-fi
+# Network management setup - offer choice between two approaches
+echo ""
+echo "=== Network Management Setup ==="
+echo "Choose your preferred network management interface:"
+echo "1) networkmanager_dmenu (keyboard-driven, Super+n)"
+echo "2) stalonetray with nm-applet (system tray with GUI)"
+echo "3) Both (you can switch between them later)"
+echo "4) Skip network management setup"
+echo ""
+read -p "Enter your choice [1-4]: " -n 1 -r
+echo ""
+
+case $REPLY in
+    1)
+        # Setup networkmanager_dmenu
+        if [ -f "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh" ]; then
+            echo "Setting up NetworkManager dmenu interface..."
+            bash "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh"
+        fi
+        ;;
+    2)
+        # Setup stalonetray
+        if [ -f "$SCRIPT_DIR/stalonetray/setup-stalonetray.sh" ]; then
+            echo "Setting up stalonetray with nm-applet..."
+            bash "$SCRIPT_DIR/stalonetray/setup-stalonetray.sh"
+            # Use the tray-enabled startup script
+            if [ -f "$SCRIPT_DIR/xsessions/xmonad-start-tray" ]; then
+                create_symlink "$SCRIPT_DIR/xsessions/xmonad-start-tray" "$HOME/.xmonad/xmonad-start"
+                echo "✓ XMonad configured to start with system tray"
+            fi
+        fi
+        ;;
+    3)
+        # Setup both
+        if [ -f "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh" ]; then
+            echo "Setting up NetworkManager dmenu interface..."
+            bash "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh"
+        fi
+        if [ -f "$SCRIPT_DIR/stalonetray/setup-stalonetray.sh" ]; then
+            echo "Setting up stalonetray with nm-applet..."
+            bash "$SCRIPT_DIR/stalonetray/setup-stalonetray.sh"
+            # Use the tray-enabled startup script
+            if [ -f "$SCRIPT_DIR/xsessions/xmonad-start-tray" ]; then
+                create_symlink "$SCRIPT_DIR/xsessions/xmonad-start-tray" "$HOME/.xmonad/xmonad-start"
+                echo "✓ XMonad configured with both network management options"
+            fi
+        fi
+        ;;
+    4)
+        echo "Skipping network management setup"
+        ;;
+    *)
+        echo "Invalid choice, skipping network management setup"
+        ;;
+esac
 
 echo ""
 echo "Setup complete! Please:"

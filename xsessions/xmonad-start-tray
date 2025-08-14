@@ -1,0 +1,30 @@
+#!/bin/bash
+# XMonad startup script with system tray and automatic monitor detection
+
+# Ensure user bin is in PATH for dmenu
+export PATH="$HOME/bin:$PATH"
+
+# Load Xresources
+[ -f ~/.Xresources ] && xrdb -merge ~/.Xresources
+
+# Set keyboard options
+setxkbmap -option ctrl:nocaps
+
+# Detect and configure monitors with autorandr
+# This will automatically apply the best matching profile
+if command -v autorandr > /dev/null 2>&1; then
+    autorandr --change --default laptop
+fi
+
+# Start system tray
+stalonetray &
+
+# Start network manager applet
+nm-applet --indicator &
+
+# Optional: Add other tray applications here
+# volumeicon &
+# blueman-applet &
+
+# Start XMonad
+exec xmonad
