@@ -89,6 +89,13 @@ if [ -f "$SCRIPT_DIR/monitor/setup-monitors.sh" ]; then
     bash "$SCRIPT_DIR/monitor/setup-monitors.sh"
 fi
 
+# Setup networkmanager_dmenu if script exists
+if [ -f "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh" ]; then
+    echo ""
+    echo "Setting up NetworkManager dmenu interface..."
+    bash "$SCRIPT_DIR/networkmanager/setup-networkmanager-dmenu.sh"
+fi
+
 echo ""
 echo "Setup complete! Please:"
 echo "1. Reload your shell: source ~/.zshrc"
