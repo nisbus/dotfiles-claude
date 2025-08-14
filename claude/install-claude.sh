@@ -5,11 +5,11 @@
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Source utility functions
+source "$DOTFILES_DIR/utils.sh"
 
 echo -e "${GREEN}Installing Claude Code...${NC}"
 
@@ -17,26 +17,37 @@ echo -e "${GREEN}Installing Claude Code...${NC}"
 if ! command -v npm &> /dev/null; then
     echo -e "${YELLOW}npm is not installed. Installing Node.js and npm...${NC}"
     
-    # Detect OS and install accordingly
-    if [ -f /etc/debian_version ]; then
-        # Debian/Ubuntu
-        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-        sudo apt-get install -y nodejs
-    elif [ -f /etc/redhat-release ]; then
-        # RHEL/CentOS/Fedora
-        curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
-        sudo yum install -y nodejs
-    elif [ "$(uname)" == "Darwin" ]; then
-        # macOS
-        if ! command -v brew &> /dev/null; then
-            echo -e "${RED}Homebrew is not installed. Please install Homebrew first.${NC}"
+    # Detect OS and package manager
+    detect_os
+    
+    # Install Node.js based on package manager
+    case "$PKG_MANAGER" in
+        apt)
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            install_packages nodejs
+            ;;
+        dnf)
+            curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+            install_packages nodejs
+            ;;
+        yum)
+            curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+            install_packages nodejs
+            ;;
+        brew)
+            brew install node
+            ;;
+        pacman)
+            install_packages nodejs npm
+            ;;
+        zypper)
+            install_packages nodejs npm
+            ;;
+        *)
+            echo -e "${RED}Unsupported package manager: $PKG_MANAGER. Please install Node.js manually.${NC}"
             exit 1
-        fi
-        brew install node
-    else
-        echo -e "${RED}Unsupported OS. Please install Node.js manually.${NC}"
-        exit 1
-    fi
+            ;;
+    esac
 fi
 
 # Setup npm to use user directory for global packages

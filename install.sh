@@ -7,35 +7,15 @@ set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Source utility functions
+source "$DOTFILES_DIR/utils.sh"
+
 echo "Installing dotfiles from $DOTFILES_DIR"
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Function to create backup of existing files
-backup_file() {
-    if [ -f "$1" ]; then
-        echo -e "${YELLOW}Backing up existing $1 to $1.backup${NC}"
-        cp "$1" "$1.backup"
-    fi
-}
-
-# Function to create symlink
-create_symlink() {
-    local source="$1"
-    local target="$2"
-    
-    if [ -e "$target" ] || [ -L "$target" ]; then
-        backup_file "$target"
-        rm -f "$target"
-    fi
-    
-    echo -e "${GREEN}Creating symlink: $target -> $source${NC}"
-    ln -s "$source" "$target"
-}
+# Detect OS and package manager
+detect_os
+echo -e "${GREEN}Detected OS: $OS (Family: $OS_FAMILY)${NC}"
+echo -e "${GREEN}Package Manager: $PKG_MANAGER${NC}"
 
 # Install Emacs configuration
 echo -e "\n${GREEN}Setting up Emacs configuration...${NC}"
@@ -44,8 +24,11 @@ create_symlink "$DOTFILES_DIR/emacs/init.el" "$HOME/.emacs.d/init.el"
 
 # Import GNU ELPA GPG key for package verification
 echo -e "${GREEN}Importing GNU ELPA GPG key...${NC}"
-gpg --keyserver keyserver.ubuntu.com --recv-keys 645357D2883A0966 2>/dev/null || true
-gpg --homedir ~/.emacs.d/elpa/gnupg --keyserver keyserver.ubuntu.com --recv-keys 645357D2883A0966 2>/dev/null || true
+# Try multiple keyservers for better reliability
+for keyserver in keys.openpgp.org keyserver.ubuntu.com pgp.mit.edu; do
+    gpg --keyserver $keyserver --recv-keys 645357D2883A0966 2>/dev/null && break || true
+    gpg --homedir ~/.emacs.d/elpa/gnupg --keyserver $keyserver --recv-keys 645357D2883A0966 2>/dev/null && break || true
+done
 
 # Install ZSH configuration
 if [ -f "$DOTFILES_DIR/zsh/.zshrc" ]; then
@@ -104,6 +87,16 @@ read -r INSTALL_BARRIER
 if [[ "$INSTALL_BARRIER" =~ ^[Yy]$ ]]; then
     if [ -f "$DOTFILES_DIR/barrier/barrier-setup.sh" ]; then
         bash "$DOTFILES_DIR/barrier/barrier-setup.sh"
+    fi
+fi
+
+# Optional: Install development environment
+echo -e "\n${YELLOW}Would you like to install the complete development environment?${NC}"
+echo -e "${YELLOW}This includes: Oh My Zsh, Make, Docker, Go, Erlang, Node.js, and dev tools (y/n)${NC}"
+read -r INSTALL_DEV
+if [[ "$INSTALL_DEV" =~ ^[Yy]$ ]]; then
+    if [ -f "$DOTFILES_DIR/dev-setup.sh" ]; then
+        bash "$DOTFILES_DIR/dev-setup.sh"
     fi
 fi
 

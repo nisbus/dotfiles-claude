@@ -3,21 +3,40 @@
 # Dotfiles setup script
 # This script sets up the development environment with all configurations
 
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source utility functions
+source "$SCRIPT_DIR/utils.sh"
+
 echo "Setting up development environment..."
 
-# Update package lists
-sudo apt-get update
+# Detect OS and package manager
+detect_os
+echo -e "${GREEN}Detected OS: $OS (Family: $OS_FAMILY)${NC}"
+echo -e "${GREEN}Package Manager: $PKG_MANAGER${NC}"
 
 # Install essential tools
 echo "Installing essential tools..."
-sudo apt-get install -y \
-    xclip \
-    xdotool \
-    alacritty \
-    fonts-firacode \
-    fonts-hack \
-    fonts-jetbrains-mono \
+
+# Define packages to install (using generic names)
+PACKAGES=(
+    xclip
+    xdotool
+    alacritty
+)
+
+# Font packages (will be mapped by get_package_name)
+FONT_PACKAGES=(
+    fonts-firacode
+    fonts-hack
+    fonts-jetbrains-mono
     fonts-cascadia-code
+)
+
+# Install packages
+install_packages "${PACKAGES[@]}" "${FONT_PACKAGES[@]}"
 
 # Create necessary directories
 mkdir -p ~/.config/alacritty
@@ -26,34 +45,37 @@ mkdir -p ~/.config/alacritty
 echo "Linking configuration files..."
 
 # Xmonad
-if [ -f ~/dotfiles/xmonad/xmonad.hs ]; then
+if [ -f "$SCRIPT_DIR/xmonad/xmonad.hs" ]; then
     mkdir -p ~/.xmonad
-    ln -sf ~/dotfiles/xmonad/xmonad.hs ~/.xmonad/xmonad.hs
+    create_symlink "$SCRIPT_DIR/xmonad/xmonad.hs" "$HOME/.xmonad/xmonad.hs"
     echo "✓ Xmonad configuration linked"
 fi
 
 # Xresources
-if [ -f ~/dotfiles/Xresources ]; then
-    ln -sf ~/dotfiles/Xresources ~/.Xresources
+if [ -f "$SCRIPT_DIR/Xresources" ]; then
+    create_symlink "$SCRIPT_DIR/Xresources" "$HOME/.Xresources"
     xrdb -merge ~/.Xresources
     echo "✓ Xresources configuration linked and loaded"
 fi
 
 # Zsh configuration
-if [ -f ~/dotfiles/zshrc ]; then
-    ln -sf ~/dotfiles/zshrc ~/.zshrc
+if [ -f "$SCRIPT_DIR/zshrc" ]; then
+    create_symlink "$SCRIPT_DIR/zshrc" "$HOME/.zshrc"
+    echo "✓ Zsh configuration linked"
+elif [ -f "$SCRIPT_DIR/zsh/.zshrc" ]; then
+    create_symlink "$SCRIPT_DIR/zsh/.zshrc" "$HOME/.zshrc"
     echo "✓ Zsh configuration linked"
 fi
 
 # Alacritty
-if [ -f ~/dotfiles/alacritty/alacritty.toml ]; then
-    ln -sf ~/dotfiles/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml
+if [ -f "$SCRIPT_DIR/alacritty/alacritty.toml" ]; then
+    create_symlink "$SCRIPT_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
     echo "✓ Alacritty configuration linked"
 fi
 
 # Xmodmap (if exists)
-if [ -f ~/dotfiles/Xmodmap ]; then
-    ln -sf ~/dotfiles/Xmodmap ~/.Xmodmap
+if [ -f "$SCRIPT_DIR/Xmodmap" ]; then
+    create_symlink "$SCRIPT_DIR/Xmodmap" "$HOME/.Xmodmap"
     echo "✓ Xmodmap configuration linked"
 fi
 

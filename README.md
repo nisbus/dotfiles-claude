@@ -80,11 +80,21 @@ For full functionality, you'll need:
 - GPG (for package signature verification)
 - Git
 
+### Cross-Platform Support
+
+This repository now supports multiple Linux distributions through automatic OS detection and package manager compatibility. The scripts will automatically detect and use:
+- **APT** (Debian, Ubuntu)
+- **DNF** (Fedora, RHEL 8+, CentOS Stream)
+- **YUM** (older RHEL/CentOS)
+- **Pacman** (Arch, Manjaro)
+- **Zypper** (openSUSE)
+- **Homebrew** (macOS)
+
 ### Package Installation Examples
 
-On Guix:
+On Fedora:
 ```bash
-guix install emacs zsh xmonad xmobar git gnupg
+sudo dnf install emacs zsh xmonad xmobar git gnupg
 ```
 
 On Debian/Ubuntu:
@@ -95,6 +105,16 @@ sudo apt install emacs zsh xmonad xmobar git gnupg
 On Arch:
 ```bash
 sudo pacman -S emacs zsh xmonad xmonad-contrib xmobar git gnupg
+```
+
+On openSUSE:
+```bash
+sudo zypper install emacs zsh xmonad xmobar git gnupg
+```
+
+On Guix:
+```bash
+guix install emacs zsh xmonad xmobar git gnupg
 ```
 
 ## Post-Installation

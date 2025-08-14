@@ -5,27 +5,18 @@
 
 set -e
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DOTFILES_DIR="$(dirname "$SCRIPT_DIR")"
+
+# Source utility functions
+source "$DOTFILES_DIR/utils.sh"
 
 echo -e "${GREEN}Setting up Barrier for keyboard/mouse sharing across machines...${NC}"
 
-# Detect the package manager
-if command -v apt &> /dev/null; then
-    PKG_MANAGER="apt"
-    INSTALL_CMD="sudo apt install -y"
-elif command -v dnf &> /dev/null; then
-    PKG_MANAGER="dnf"
-    INSTALL_CMD="sudo dnf install -y"
-elif command -v pacman &> /dev/null; then
-    PKG_MANAGER="pacman"
-    INSTALL_CMD="sudo pacman -S --noconfirm"
-elif command -v zypper &> /dev/null; then
-    PKG_MANAGER="zypper"
-    INSTALL_CMD="sudo zypper install -y"
-else
+# Detect OS and package manager
+detect_os
+
+if [ "$PKG_MANAGER" = "unknown" ]; then
     echo -e "${RED}Unsupported package manager. Please install Barrier manually.${NC}"
     exit 1
 fi
@@ -35,7 +26,7 @@ echo -e "${GREEN}Installing Barrier...${NC}"
 if command -v barrier &> /dev/null; then
     echo -e "${YELLOW}Barrier is already installed${NC}"
 else
-    $INSTALL_CMD barrier
+    install_packages barrier
 fi
 
 # Create Barrier config directory
