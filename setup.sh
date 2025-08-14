@@ -25,6 +25,9 @@ PACKAGES=(
     xclip
     xdotool
     alacritty
+    xrandr
+    arandr
+    autorandr
 )
 
 # Font packages (will be mapped by get_package_name)
@@ -79,6 +82,13 @@ if [ -f "$SCRIPT_DIR/Xmodmap" ]; then
     echo "✓ Xmodmap configuration linked"
 fi
 
+# Setup monitor configuration if script exists
+if [ -f "$SCRIPT_DIR/monitor/setup-monitors.sh" ]; then
+    echo ""
+    echo "Setting up monitor configuration..."
+    bash "$SCRIPT_DIR/monitor/setup-monitors.sh"
+fi
+
 echo ""
 echo "Setup complete! Please:"
 echo "1. Reload your shell: source ~/.zshrc"
@@ -87,5 +97,9 @@ echo ""
 echo "Clipboard shortcuts:"
 echo "  Terminal: pbcopy/pbpaste or copy/paste commands"
 echo "  XMonad: Ctrl+Shift+C/V"
+echo ""
+echo "Monitor management:"
+echo "  - Monitors will auto-detect when connected/disconnected"
+echo "  - Use 'autorandr' command to manually switch profiles"
 echo ""
 echo "Your terminal is now set to Alacritty with JetBrains Mono font."

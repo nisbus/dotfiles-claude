@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=EXWM (Emacs Window Manager)
+Comment=Emacs X Window Manager
+Exec=/home/valdimar/dotfiles-claude/xsessions/exwm-start
+Type=Application
+DesktopNames=EXWM

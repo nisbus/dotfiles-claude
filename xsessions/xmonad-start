@@ -1,0 +1,17 @@
+#!/bin/bash
+# XMonad startup script with automatic monitor detection
+
+# Load Xresources
+[ -f ~/.Xresources ] && xrdb -merge ~/.Xresources
+
+# Set keyboard options
+setxkbmap -option ctrl:nocaps
+
+# Detect and configure monitors with autorandr
+# This will automatically apply the best matching profile
+if command -v autorandr > /dev/null 2>&1; then
+    autorandr --change --default laptop
+fi
+
+# Start XMonad
+exec xmonad

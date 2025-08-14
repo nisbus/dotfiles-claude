@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=XMonad
+Comment=Lightweight tiling window manager
+Exec=/home/valdimar/dotfiles-claude/xsessions/xmonad-start
+Type=Application
+DesktopNames=XMonad

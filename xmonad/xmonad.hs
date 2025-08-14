@@ -1,6 +1,8 @@
 import XMonad
 import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
+import XMonad.Hooks.EwmhDesktops
+import XMonad.Layout.IndependentScreens
 import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
 import System.IO
@@ -8,7 +10,7 @@ import System.IO
 main = do
     xmproc <- spawnPipe "xmobar"
     spawn "xmodmap ~/.Xmodmap"
-    xmonad $ docks def
+    xmonad $ ewmhFullscreen $ ewmh $ docks def
         { manageHook = manageDocks <+> manageHook def
         , layoutHook = avoidStruts  $  layoutHook def
         , logHook = dynamicLogWithPP xmobarPP
