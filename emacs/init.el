@@ -121,14 +121,23 @@
   :ensure t
   :mode "\\.go\\'"
   :hook ((go-mode . lsp-deferred)
-         (go-mode . company-mode)
-         (before-save . gofmt-before-save))
+         (go-mode . company-mode))
   :bind (:map go-mode-map
               ("C-c C-r" . go-remove-unused-imports)
               ("C-c C-g" . go-goto-imports)
               ("C-c C-k" . godoc))
   :config
-  (setq gofmt-command "goimports")
+  ;; Use goimports if available
+  (when (executable-find "goimports")
+    (setq gofmt-command "goimports"))
+  
+  ;; Format on save
+  (add-hook 'before-save-hook 
+            (lambda ()
+              (when (eq major-mode 'go-mode)
+                (gofmt-before-save)))
+            nil t)
+  
   (setq compile-command "go build -v && go test -v && go vet"))
 
 ;; Go debugging with dap-mode
@@ -274,14 +283,19 @@
   (setq lsp-idle-delay 0.500)
   (setq lsp-log-io nil)
   
+  ;; Suppress warnings about missing functions
+  (declare-function lsp-rename "lsp-mode")
+  (declare-function lsp-execute-code-action-by-kind "lsp-mode")
+  
   ;; Go specific
   (setq lsp-go-analyses '((fieldalignment . t)
                           (nilness . t)
                           (unusedwrite . t)
                           (unusedparams . t)))
   
-  ;; Erlang specific
-  (setq lsp-erlang-server-path "erlang_ls"))
+  ;; Erlang specific - only set if erlang_ls is available
+  (when (executable-find "erlang_ls")
+    (setq lsp-erlang-server-path "erlang_ls")))
 
 ;; LSP UI for better IDE experience
 (use-package lsp-ui

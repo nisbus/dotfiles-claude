@@ -26,7 +26,7 @@ main = do
         [ ((mod4Mask .|. shiftMask, xK_z), spawn "xscreensaver-command -lock")
         , ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
         , ((0, xK_Print), spawn "scrot")
-        , ((mod4Mask, xK_p), spawn "dmenu_run")
+        , ((mod4Mask, xK_p), spawn "PATH=$HOME/bin:$PATH dmenu_run")
         -- Clipboard keybindings (similar to Ctrl+Shift+V/C)
         , ((controlMask .|. shiftMask, xK_c), spawn "xclip -selection clipboard")
         , ((controlMask .|. shiftMask, xK_v), spawn "xclip -selection clipboard -o | xdotool type --clearmodifiers --file -")

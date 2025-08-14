@@ -321,7 +321,6 @@ install_dev_tools() {
     
     # Common development tools
     TOOLS=(
-        emacs
         git
         curl
         wget
@@ -338,6 +337,26 @@ install_dev_tools() {
         tree
         ncdu
     )
+    
+    # Install Emacs with X11 support specifically
+    echo -e "${GREEN}Installing Emacs with X11 support...${NC}"
+    case "$PKG_MANAGER" in
+        dnf|yum)
+            install_packages emacs emacs-x11
+            ;;
+        apt-get|apt)
+            install_packages emacs emacs-gtk
+            ;;
+        pacman)
+            install_packages emacs
+            ;;
+        zypper)
+            install_packages emacs emacs-x11
+            ;;
+        *)
+            install_packages emacs
+            ;;
+    esac
     
     # Map package names for different distributions
     for tool in "${TOOLS[@]}"; do
@@ -412,6 +431,12 @@ main() {
     install_golang
     install_erlang
     install_nodejs
+    
+    # Setup Emacs configuration
+    if [ -f "$SCRIPT_DIR/emacs/setup-emacs.sh" ]; then
+        echo -e "\n${GREEN}Setting up Emacs configuration...${NC}"
+        bash "$SCRIPT_DIR/emacs/setup-emacs.sh"
+    fi
     
     # Update shell configuration
     echo -e "\n${GREEN}Updating shell configuration...${NC}"

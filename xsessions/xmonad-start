@@ -1,6 +1,9 @@
 #!/bin/bash
 # XMonad startup script with automatic monitor detection
 
+# Ensure user bin is in PATH for dmenu
+export PATH="$HOME/bin:$PATH"
+
 # Load Xresources
 [ -f ~/.Xresources ] && xrdb -merge ~/.Xresources
 
