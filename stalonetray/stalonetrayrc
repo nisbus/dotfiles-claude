@@ -1,0 +1,70 @@
+# Stalonetray configuration file
+# vim: set ft=config:
+
+# Background color (tray background)
+# Use XMonad's background color
+background "#000000"
+
+# Decorations (set to none for XMonad)
+decorations none
+
+# Tray window is dockapp (for XMonad compatibility)
+dockapp_mode none
+
+# Geometry (width x height + x_offset + y_offset)
+# This places it in top-right corner
+geometry 6x1-0+0
+
+# Grow gravity (direction to grow when new icons are added)
+# NE = North East (top-right)
+grow_gravity NE
+
+# Icon gravity (alignment of icons)
+# NE = North East (top-right)
+icon_gravity NE
+
+# Icon size
+icon_size 24
+
+# Use panel window type (for proper XMonad integration)
+window_type dock
+
+# Window strut (reserve space so windows don't overlap)
+window_strut auto
+
+# Window layer (keep on top)
+window_layer top
+
+# Don't show in pager/taskbar
+skip_taskbar true
+
+# Transparency support
+transparent false
+
+# Tinting color
+# tint_color white
+# tint_level 0
+
+# Distance between icons
+slot_size 24
+
+# Max geometry (maximum size)
+max_geometry 10x1
+
+# Scrollbars (for when there are too many icons)
+scrollbars none
+
+# Mouse button actions
+mouse_button_actions 1 3 2
+
+# Don't hide on mouse out
+hide_on_mouse_out false
+
+# Fuzzy edges (for anti-aliasing)
+fuzzy_edges 0
+
+# Window name
+window_name stalonetray
+
+# Sticky mode (visible on all desktops)
+sticky true

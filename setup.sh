@@ -89,6 +89,21 @@ if [ -f "$SCRIPT_DIR/monitor/setup-monitors.sh" ]; then
     bash "$SCRIPT_DIR/monitor/setup-monitors.sh"
 fi
 
+# Optional: Setup stalonetray (system tray) - alternative to dmenu approach
+if [ -f "$SCRIPT_DIR/stalonetray/setup-stalonetray.sh" ]; then
+    echo ""
+    read -p "Do you want to install stalonetray (system tray with nm-applet)? [y/N] " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        bash "$SCRIPT_DIR/stalonetray/setup-stalonetray.sh"
+        # Use the tray-enabled startup script
+        if [ -f "$SCRIPT_DIR/xsessions/xmonad-start-tray" ]; then
+            create_symlink "$SCRIPT_DIR/xsessions/xmonad-start-tray" "$HOME/.xmonad/xmonad-start"
+            echo "✓ XMonad configured to start with system tray"
+        fi
+    fi
+fi
+
 echo ""
 echo "Setup complete! Please:"
 echo "1. Reload your shell: source ~/.zshrc"
