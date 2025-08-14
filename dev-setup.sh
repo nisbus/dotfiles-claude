@@ -145,6 +145,18 @@ install_erlang() {
         sudo mv /tmp/rebar3 /usr/local/bin/rebar3
     fi
     
+    # Install erlang_ls (Erlang Language Server)
+    if ! command_exists erlang_ls; then
+        echo -e "${GREEN}Installing erlang_ls (Erlang Language Server)...${NC}"
+        # Clone and build erlang_ls
+        git clone https://github.com/erlang-ls/erlang_ls.git /tmp/erlang_ls 2>/dev/null || true
+        cd /tmp/erlang_ls
+        make
+        sudo make install PREFIX=/usr/local
+        cd -
+        rm -rf /tmp/erlang_ls
+    fi
+    
     echo -e "${GREEN}Erlang/OTP installed successfully${NC}"
 }
 
@@ -309,6 +321,7 @@ install_dev_tools() {
     
     # Common development tools
     TOOLS=(
+        emacs
         git
         curl
         wget
