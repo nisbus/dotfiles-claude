@@ -12,7 +12,7 @@ echo "Setting up stalonetray system tray..."
 
 # Install required packages
 echo "Installing system tray packages..."
-install_packages stalonetray network-manager-applet
+install_packages stalonetray network-manager-applet pasystray pavucontrol blueman
 
 # Create config directory
 CONFIG_DIR="$HOME/.config/stalonetray"
@@ -92,25 +92,45 @@ EOF
     echo "✓ Network Manager applet autostart configured"
 fi
 
+# Note: pasystray doesn't need configuration file
+# It works out of the box with PulseAudio
+
 echo ""
 echo "=== Stalonetray setup complete! ==="
 echo ""
 echo "System tray configuration:"
 echo "  - Stalonetray will appear in the top-right corner"
 echo "  - Network Manager applet will show in the tray"
+echo "  - Volume control icon will show in the tray"
+echo "  - Bluetooth manager will show in the tray"
 echo "  - Icons size: 24x24 pixels"
 echo "  - Background: Black (matches XMonad)"
+echo ""
+echo "Volume control features (pasystray):"
+echo "  - Left-click: Open volume control menu"
+echo "  - Middle-click: Mute/unmute"  
+echo "  - Right-click: Open mixer (pavucontrol)"
+echo "  - Scroll wheel: Adjust volume"
+echo ""
+echo "Bluetooth features (blueman):"
+echo "  - Left-click: Open Bluetooth devices menu"
+echo "  - Right-click: Bluetooth settings"
+echo "  - Quick connect to paired devices"
+echo "  - File transfer support"
 echo ""
 echo "To apply changes:"
 echo "  1. Restart XMonad: Super+Q"
 echo "  2. Or logout and login again"
 echo ""
-echo "Tray applications you can add:"
-echo "  - nm-applet (network) - already configured"
-echo "  - volumeicon (volume control)"
-echo "  - blueman-applet (bluetooth)"
-echo "  - dropbox"
-echo "  - slack, discord, etc."
+echo "Tray applications configured:"
+echo "  ✓ nm-applet (network management)"
+echo "  ✓ pasystray (PulseAudio volume control)"
+echo "  ✓ blueman-applet (Bluetooth management)"
+echo ""
+echo "Additional tray apps you can add:"
+echo "  - cbatticon (battery indicator)"
+echo "  - redshift-gtk (blue light filter)"
+echo "  - dropbox, slack, discord, etc."
 echo ""
 echo "Note: This is an alternative to networkmanager_dmenu"
 echo "providing a more traditional tray-based interface."

@@ -7,15 +7,22 @@ This branch demonstrates an alternative approach to network management in XMonad
 Instead of using dmenu-based tools (like networkmanager_dmenu), this approach uses:
 - **stalonetray**: A standalone system tray for window managers
 - **nm-applet**: The standard Network Manager GUI applet
+- **pasystray**: PulseAudio volume control with tray icon
+- **blueman-applet**: Bluetooth device management with tray icon
 
 ## Features
 
 - Traditional click-based network management interface
 - Visual network status indicator in tray
+- Volume control with visual feedback
+- Bluetooth device management and pairing
 - Support for VPN connections
 - WiFi signal strength indicator
 - Easy network switching with mouse
-- Works with other tray applications (volume, bluetooth, etc.)
+- Scroll wheel volume adjustment
+- Quick connect to Bluetooth devices
+- File transfer via Bluetooth
+- Works with other tray applications (battery, redshift, etc.)
 
 ## Installation
 
@@ -44,15 +51,33 @@ Configuration file: `~/.stalonetrayrc`
 - Background: Black (matches XMonad)
 - Growth direction: Left (new icons appear to the left)
 
+### Volume Control
+
+Pasystray provides PulseAudio control with:
+- **Left-click**: Open volume control menu
+- **Middle-click**: Mute/unmute
+- **Right-click**: Open pavucontrol mixer
+- **Scroll wheel**: Adjust volume up/down
+- **Icon**: Shows current volume level visually
+
+### Bluetooth Control
+
+Blueman-applet provides Bluetooth management with:
+- **Left-click**: Open device menu (connect/disconnect)
+- **Right-click**: Open Bluetooth settings
+- **Middle-click**: Turn Bluetooth on/off
+- **Pairing**: Easy device pairing wizard
+- **File transfer**: Send/receive files via Bluetooth
+
 ### Adding More Tray Applications
 
 Edit `~/.xmonad/xmonad-start` to add more tray apps:
 ```bash
-# Volume control
-volumeicon &
-
 # Bluetooth manager
 blueman-applet &
+
+# Battery indicator
+cbatticon &
 
 # Dropbox
 dropbox start -i &
