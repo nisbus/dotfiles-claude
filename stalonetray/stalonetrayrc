@@ -12,8 +12,9 @@ decorations none
 dockapp_mode none
 
 # Geometry (width x height + x_offset + y_offset)
-# This places it in top-right corner
-geometry 6x1-0+0
+# This places it in top-right corner of primary monitor
+# Position it at the same level as xmobar
+geometry 6x1+3600+0
 
 # Grow gravity (direction to grow when new icons are added)
 # NE = North East (top-right)
@@ -54,11 +55,8 @@ max_geometry 10x1
 # Scrollbars (for when there are too many icons)
 scrollbars none
 
-# Mouse button actions
-mouse_button_actions 1 3 2
-
 # Don't hide on mouse out
-hide_on_mouse_out false
+# hide_on_mouse_out false
 
 # Fuzzy edges (for anti-aliasing)
 fuzzy_edges 0
