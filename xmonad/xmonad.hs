@@ -24,8 +24,10 @@ main = do
         , focusedBorderColor = "#cd8b00"
         } `additionalKeys`
         [ ((mod4Mask .|. shiftMask, xK_z), spawn "xscreensaver-command -lock")
-        , ((controlMask, xK_Print), spawn "sleep 0.2; scrot -s")
-        , ((0, xK_Print), spawn "scrot")
+        -- Screenshot keybindings using flameshot
+        , ((0, xK_Print), spawn "flameshot gui")                     -- PrtScr: Interactive screenshot
+        , ((shiftMask, xK_Print), spawn "flameshot full -c")        -- Shift+PrtScr: Full screen to clipboard
+        , ((controlMask, xK_Print), spawn "flameshot screen -c")    -- Ctrl+PrtScr: Current screen to clipboard
         , ((mod4Mask, xK_p), spawn "PATH=$HOME/bin:$PATH dmenu_run")
         -- Network Manager dmenu interface (Super+n)
         , ((mod4Mask, xK_n), spawn "networkmanager_dmenu")

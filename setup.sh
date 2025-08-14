@@ -89,6 +89,13 @@ if [ -f "$SCRIPT_DIR/monitor/setup-monitors.sh" ]; then
     bash "$SCRIPT_DIR/monitor/setup-monitors.sh"
 fi
 
+# Setup screenshot functionality if script exists
+if [ -f "$SCRIPT_DIR/screenshot/setup-screenshot.sh" ]; then
+    echo ""
+    echo "Setting up screenshot functionality..."
+    bash "$SCRIPT_DIR/screenshot/setup-screenshot.sh"
+fi
+
 # Network management setup - offer choice between two approaches
 echo ""
 echo "=== Network Management Setup ==="
