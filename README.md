@@ -2,6 +2,14 @@
 
 Personal configuration files for Emacs, ZSH, XMonad, and related tools.
 
+## Attribution
+
+This configuration incorporates themes and design elements from:
+- **[gh0stzk/dotfiles](https://github.com/gh0stzk/dotfiles)** - Theme system, EWW widget designs, and color schemes for Cristina theme
+- **[Axarva/dotfiles-2.0](https://github.com/Axarva/dotfiles-2.0)** - Additional theme configurations and styling concepts
+
+Special thanks to these developers for their excellent work and inspiration.
+
 ## Contents
 
 - **emacs/**: Emacs configuration with EXWM support, Zenburn theme, and development tools
@@ -11,6 +19,26 @@ Personal configuration files for Emacs, ZSH, XMonad, and related tools.
 - **scripts/**: Installation and utility scripts
 
 ## Features
+
+### Theme System
+- Dynamic theme switching with Super+t
+- Two beautiful themes: Cristina (dark purple) and Silvia
+- Automatic color synchronization across all components
+- Theme-aware notifications with Dunst
+- GTK application theming support
+
+### EWW Widget System  
+- Volume, brightness, and terminal opacity controls
+- System monitoring (CPU, RAM, battery)
+- Fully theme-aware colors
+- Toggle with Super+i
+
+### Window Management
+- XMonad tiling window manager
+- Transparency support via Picom compositor
+- Scratchpad terminal (Super+`)
+- Lock screen with i3lock (Super+Shift+l)
+- Rofi cheatsheet (Super+F1)
 
 ### Emacs Configuration
 - Use-package for package management
@@ -24,28 +52,54 @@ Personal configuration files for Emacs, ZSH, XMonad, and related tools.
 - Separate configurations for XMonad and EXWM sessions
 - Clean session initialization
 
-### Window Manager Support
-- XMonad configuration (if present)
-- EXWM configuration integrated with Emacs
-- Xmobar status bar configuration
-
 ## Installation
+
+### Prerequisites
+
+- Fedora/RHEL/Debian/Ubuntu/Arch Linux
+- XMonad window manager
+- Git
 
 ### Quick Install
 
-Clone the repository and run the install script:
+Clone the repository and run the install scripts:
 
 ```bash
-git clone <your-repo-url> ~/dotfiles
-cd ~/dotfiles
+git clone <your-repo-url> ~/dotfiles-claude
+cd ~/dotfiles-claude
+
+# Install base dotfiles
 ./install.sh
+
+# Install XMonad features (themes, widgets, compositor, etc.)
+./install-features.sh
 ```
 
-The install script will:
-- Back up any existing configuration files
-- Create symbolic links to the dotfiles
-- Import necessary GPG keys for package verification
-- Set up Caps Lock as Ctrl for the current session
+The installation will:
+- Install required packages (picom, dunst, rofi, EWW, etc.)
+- Set up configuration files
+- Configure themes and widgets
+- Create all necessary directories
+- Set up GTK theming
+
+## Key Bindings
+
+### Essential Shortcuts
+- `Super+t` - Theme selector (switch between Cristina and Silvia)
+- `Super+i` - Toggle EWW widgets (volume/brightness/opacity/system info)
+- `Super+F1` - Show keybindings cheatsheet
+- `Super+Shift+l` - Lock screen with wallpaper
+- `Super+Shift+z` - Lock screen with blur
+- `Super+`` ` - Scratchpad terminal
+- `Super+Shift+p` - Power menu
+- `Super+q` - Restart XMonad
+- `Super+Shift+q` - Quit XMonad
+
+### Window Management
+- `Super+Space` - Next layout
+- `Super+Tab` - Focus next window
+- `Super+Shift+c` - Close window
+- `Super+Return` - Swap with master
 
 ### Manual Installation
 

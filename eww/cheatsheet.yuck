@@ -1,0 +1,143 @@
+;; Cheatsheet widget for XMonad
+;; Based on gh0stzk's dotfiles, adapted for XMonad keybindings
+
+(defwidget cheatsheet []
+  (scroll :hscroll true :vscroll true
+    (box :class "cheatsheet" :orientation "v" :space-evenly "false"
+      (cheatsheet-header)
+      (cheatsheet-content))))
+
+(defwidget cheatsheet-header []
+  (box :class "cheatsheet-header" :orientation "v" :spacing 0 :space-evenly "false"
+    (label :class "title" :xalign 0.5 
+           :text "XMonad Cheatsheet")
+    (label :class "title-info" :yalign 0 
+           :text "(Press Super+F1 to close this window)")))
+
+(defwidget cheatsheet-content []
+  (box :class "content" :orientation "h" :spacing 20 :space-evenly "true"
+    ;; Column 1 - Window Management
+    (box :orientation "v" :space-evenly "false" :spacing 1
+      (box :orientation "h" :space-evenly "true"
+        (label :class "category-header" :xalign 0.5 :text "Window Management")
+        (label :text ""))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Close window")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + c"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Next layout")
+        (label :class "keys-alt" :xalign 1 :text "Super + Space"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Reset layout")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + Space"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Focus next")
+        (label :class "keys-alt" :xalign 1 :text "Super + Tab"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Focus previous")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + Tab"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Swap with master")
+        (label :class "keys-alt" :xalign 1 :text "Super + Return"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Shrink master")
+        (label :class "keys-alt" :xalign 1 :text "Super + h"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Expand master")
+        (label :class "keys-alt" :xalign 1 :text "Super + l"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Push to tiling")
+        (label :class "keys-alt" :xalign 1 :text "Super + t"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "category-header" :xalign 0.5 :text "Workspaces")
+        (label :text ""))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Switch to workspace N")
+        (label :class "keys-alt" :xalign 1 :text "Super + [1-9]"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Move to workspace N")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + [1-9]"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Toggle last workspace")
+        (label :class "keys-alt" :xalign 1 :text "Super + Tab")))
+    
+    ;; Column 2 - Applications
+    (box :orientation "v" :space-evenly "false" :spacing 1
+      (box :orientation "h" :space-evenly "true"
+        (label :class "category-header" :xalign 0.5 :text "Applications")
+        (label :text ""))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Terminal")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + Return"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Application launcher")
+        (label :class "keys-alt" :xalign 1 :text "Super + p"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Network Manager")
+        (label :class "keys-alt" :xalign 1 :text "Super + n"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Screenshot")
+        (label :class "keys-alt" :xalign 1 :text "PrtScr"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Full screenshot")
+        (label :class "keys-alt" :xalign 1 :text "Shift + PrtScr"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Lock screen")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + z"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "category-header" :xalign 0.5 :text "System")
+        (label :text ""))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Restart XMonad")
+        (label :class "keys-alt" :xalign 1 :text "Super + q"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Quit XMonad")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + q"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Theme Selector")
+        (label :class "keys-alt" :xalign 1 :text "Super + Shift + t"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Toggle EWW widgets")
+        (label :class "keys-alt" :xalign 1 :text "Super + e"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Show this cheatsheet")
+        (label :class "keys-alt" :xalign 1 :text "Super + F1")))
+    
+    ;; Column 3 - Custom Features
+    (box :orientation "v" :space-evenly "false" :spacing 1
+      (box :orientation "h" :space-evenly "true"
+        (label :class "category-header" :xalign 0.5 :text "Custom Features")
+        (label :text ""))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Scratchpad terminal")
+        (label :class "keys-alt" :xalign 1 :text "Super + `"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Volume up")
+        (label :class "keys-alt" :xalign 1 :text "XF86AudioRaiseVolume"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Volume down")
+        (label :class "keys-alt" :xalign 1 :text "XF86AudioLowerVolume"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Mute")
+        (label :class "keys-alt" :xalign 1 :text "XF86AudioMute"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Brightness up")
+        (label :class "keys-alt" :xalign 1 :text "XF86MonBrightnessUp"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Brightness down")
+        (label :class "keys-alt" :xalign 1 :text "XF86MonBrightnessDown"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Copy")
+        (label :class "keys-alt" :xalign 1 :text "Ctrl + Shift + c"))
+      (box :orientation "h" :space-evenly "true"
+        (label :class "keys" :xalign 0 :text "Paste")
+        (label :class "keys-alt" :xalign 1 :text "Ctrl + Shift + v")))))
+
+;; Window definition
+(defwindow cheatsheet
+  :monitor 0
+  :geometry (geometry :x "0%" :y "0%" :width "80%" :height "70%" :anchor "center")
+  :stacking "overlay"
+  :exclusive false
+  :focusable true
+  (cheatsheet))

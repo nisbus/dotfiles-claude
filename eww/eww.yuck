@@ -1,0 +1,67 @@
+;; EWW Configuration for XMonad - Based on Axarva's dotfiles
+;; Adapted for simpler volume and battery status widgets
+
+;; Volume and brightness sliders widget
+(defwidget sliders [] 
+  (box :orientation "v" :space-evenly "false" :class "sliders" 
+    (box :orientation "h" :class "slider-vol" :space-evenly "false" 
+      (box :class "label-vol" "")
+      (scale :min 0 :max 101 :value {volume} :onchange "amixer -D pulse sset Master {}%"))
+    (box :orientation "h" :class "slider-bright" :space-evenly "false" 
+      (box :class "label-bright" "")
+      (scale :min 0 :max 101 :value {bright} :onchange "brightnessctl s {}%"))
+    (box :orientation "h" :class "slider-battery" :space-evenly "false" 
+      (box :class "label-battery" {bat-icon})
+      (scale :min 0 :active "false" :max 101 :value {battery-remaining}))))
+
+;; System info widget
+(defwidget system_info []
+  (box :orientation "v" :space-evenly "false" :class "sys-info"
+    (box :orientation "h" :space-evenly "true" :class "sys-row"
+      (box :class "sys-icon-cpu" "")
+      (label :class "sys-text-cpu" :text "${cpu-used}%"))
+    (box :orientation "h" :space-evenly "true" :class "sys-row"
+      (box :class "sys-icon-mem" "")
+      (label :class "sys-text-mem" :text "${ram-used}%"))
+    (box :orientation "h" :space-evenly "true" :class "sys-row"
+      (box :class "sys-icon-bat" {bat-icon})
+      (label :class "sys-text-bat" :text "${battery-remaining}%"))))
+
+;; Power menu widget
+(defwidget power_menu []
+  (box :orientation "h" :halign "center" :class "power-menu" :space-evenly "true"
+    (button :class "power-shutdown" :onclick "systemctl poweroff" :tooltip "Shutdown" "")
+    (button :class "power-reboot" :onclick "systemctl reboot" :tooltip "Reboot" "")
+    (button :class "power-lock" :onclick "~/.config/eww/scripts/lock.sh" :tooltip "Lock" "")
+    (button :class "power-suspend" :onclick "systemctl suspend" :tooltip "Suspend" "")
+    (button :class "power-logout" :onclick "pkill xmonad" :tooltip "Logout" "")))
+
+;; Variables
+(defpoll volume :interval "1s" "amixer -D pulse sget Master | grep 'Left:' | awk -F'[][]' '{ print $2 }' | tr -d '%'")
+(defpoll bright :interval "2s" "brightnessctl | grep -oP '\\d+(?=%)'")
+(defpoll cpu-used :interval "2s" "top -bn1 | grep '^%Cpu' | awk '{print 100 - $8}'")
+(defpoll ram-used :interval "1s" "free -m | grep Mem | awk '{printf(\"%.0f\", $3/$2 * 100)}'")
+(defpoll battery-remaining :interval "5s" "cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo 100")
+(defpoll bat-icon :interval "5s" "~/.config/eww/scripts/battery-icon.sh")
+
+;; Windows
+(defwindow sliders
+  :monitor 0
+  :geometry (geometry :x "20px" :y "100px" :width "280px" :height "150px" :anchor "top left")
+  :stacking "fg"
+  :exclusive false
+  (sliders))
+
+(defwindow system_info
+  :monitor 0
+  :geometry (geometry :x "20px" :y "260px" :width "280px" :height "120px" :anchor "top left")
+  :stacking "fg"
+  :exclusive false
+  (system_info))
+
+(defwindow power_menu
+  :monitor 0
+  :geometry (geometry :x "20px" :y "400px" :width "280px" :height "80px" :anchor "top left")
+  :stacking "fg"
+  :exclusive false
+  (power_menu))

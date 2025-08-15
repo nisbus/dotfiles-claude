@@ -1,6 +1,9 @@
 # Alacritty Configuration
 # Modern, GPU-accelerated terminal emulator
 
+[general]
+import = ["~/.config/alacritty/themes/current.toml"]
+
 [window]
 padding = { x = 10, y = 10 }
 decorations = "full"
