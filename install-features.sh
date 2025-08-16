@@ -25,7 +25,7 @@ fi
 echo "Installing system packages..."
 
 # Core packages
-PACKAGES="picom dunst rofi i3lock flameshot maim xdotool xsettingsd"
+PACKAGES="picom dunst rofi i3lock xautolock flameshot maim xdotool xsettingsd"
 
 # GTK themes and icons
 PACKAGES="$PACKAGES arc-theme papirus-icon-theme gnome-themes-extra"

@@ -10,10 +10,52 @@ export PATH="$HOME/bin:$PATH"
 # Set keyboard options
 setxkbmap -option ctrl:nocaps
 
-# Detect and configure monitors with autorandr
-# This will automatically apply the best matching profile
+# Detect and configure monitors
+# First, explicitly detect and enable all connected displays
+if command -v xrandr > /dev/null 2>&1; then
+    # Get connected displays
+    LAPTOP_DISPLAY=$(xrandr --query | grep -E "^(eDP|LVDS)" | grep " connected" | cut -d" " -f1 | head -1)
+    EXTERNAL_DISPLAY=$(xrandr --query | grep -E "^(HDMI|DP|VGA)" | grep " connected" | cut -d" " -f1 | head -1)
+    
+    if [ -n "$EXTERNAL_DISPLAY" ]; then
+        echo "External display detected: $EXTERNAL_DISPLAY" >> /tmp/xmonad-start.log
+        # Enable external display as primary with auto resolution
+        xrandr --output "$EXTERNAL_DISPLAY" --auto --primary
+        
+        if [ -n "$LAPTOP_DISPLAY" ]; then
+            # Position laptop display to the right of external
+            xrandr --output "$LAPTOP_DISPLAY" --auto --right-of "$EXTERNAL_DISPLAY"
+        fi
+    elif [ -n "$LAPTOP_DISPLAY" ]; then
+        echo "Laptop display only: $LAPTOP_DISPLAY" >> /tmp/xmonad-start.log
+        xrandr --output "$LAPTOP_DISPLAY" --auto --primary
+    fi
+fi
+
+# Then use autorandr if available for profile management
 if command -v autorandr > /dev/null 2>&1; then
-    autorandr --change --default laptop
+    # Try to load a saved profile that matches current hardware
+    autorandr --change || echo "No matching autorandr profile found" >> /tmp/xmonad-start.log
+fi
+
+# Apply saved theme to ensure transparency is initialized
+if [ -f "$HOME/.config/xmonad/themes/current" ]; then
+    CURRENT_THEME=$(cat "$HOME/.config/xmonad/themes/current")
+    if [ -n "$CURRENT_THEME" ]; then
+        "$HOME/.config/xmonad/theme-switcher/apply-theme.sh" "$CURRENT_THEME" &
+    fi
+fi
+
+# Set compositor for transparency
+if command -v picom > /dev/null 2>&1; then
+    picom -b --config ~/.config/picom/picom.conf 2>/dev/null || picom -b
+elif command -v compton > /dev/null 2>&1; then
+    compton -b
+fi
+
+# Start auto-lock for security compliance
+if [ -x "$HOME/.config/xmonad/lockscreen/auto-lock.sh" ]; then
+    "$HOME/.config/xmonad/lockscreen/auto-lock.sh" start &
 fi
 
 # Start XMonad
