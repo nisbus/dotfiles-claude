@@ -160,6 +160,50 @@ install_erlang() {
     echo -e "${GREEN}Erlang/OTP installed successfully${NC}"
 }
 
+# Install Python and development tools
+install_python() {
+    echo -e "\n${GREEN}Installing Python and development tools...${NC}"
+    
+    case "$PKG_MANAGER" in
+        apt)
+            install_packages python3 python3-pip python3-venv python3-dev python3-setuptools
+            ;;
+        dnf|yum)
+            install_packages python3 python3-pip python3-devel python3-setuptools
+            ;;
+        pacman)
+            install_packages python python-pip python-virtualenv python-setuptools
+            ;;
+        zypper)
+            install_packages python3 python3-pip python3-devel python3-setuptools
+            ;;
+        brew)
+            brew install python
+            ;;
+        *)
+            echo -e "${YELLOW}Please install Python manually for your system${NC}"
+            ;;
+    esac
+    
+    # Install Python development tools
+    if command_exists pip3; then
+        echo -e "${GREEN}Installing Python development tools...${NC}"
+        
+        # Ensure pip is up to date
+        python3 -m pip install --user --upgrade pip
+        
+        # Install essential Python development tools
+        python3 -m pip install --user black isort autopep8 flake8 pylint mypy pytest pytest-cov
+        
+        # Install additional useful Python tools
+        python3 -m pip install --user pipenv virtualenv virtualenvwrapper
+        
+        echo -e "${GREEN}Python and development tools installed successfully${NC}"
+    else
+        echo -e "${YELLOW}pip3 not found, Python development tools installation skipped${NC}"
+    fi
+}
+
 # Install Node.js and npm for JavaScript/Next.js development
 install_nodejs() {
     echo -e "\n${GREEN}Installing Node.js and npm...${NC}"
@@ -413,6 +457,7 @@ main() {
     echo "  • Make and build essentials"
     echo "  • Docker and Docker Compose"
     echo "  • Go and development tools"
+    echo "  • Python and development tools"
     echo "  • Erlang/OTP and rebar3"
     echo "  • Node.js, npm, and JavaScript tools"
     echo "  • Additional development utilities"
@@ -429,6 +474,7 @@ main() {
     
     # Install development languages
     install_golang
+    install_python
     install_erlang
     install_nodejs
     
@@ -462,6 +508,8 @@ main() {
     echo ""
     echo -e "${GREEN}Installed tools:${NC}"
     command_exists go && echo "  ✓ Go $(go version 2>/dev/null | cut -d' ' -f3)"
+    command_exists python3 && echo "  ✓ Python $(python3 --version 2>/dev/null | cut -d' ' -f2)"
+    command_exists pip3 && echo "  ✓ pip $(pip3 --version 2>/dev/null | cut -d' ' -f2)"
     command_exists erl && echo "  ✓ Erlang $(erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().' -noshell 2>/dev/null)"
     command_exists node && echo "  ✓ Node.js $(node --version)"
     command_exists npm && echo "  ✓ npm $(npm --version)"

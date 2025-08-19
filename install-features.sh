@@ -30,8 +30,15 @@ PACKAGES="picom dunst rofi i3lock xautolock flameshot maim xdotool xsettingsd"
 # GTK themes and icons
 PACKAGES="$PACKAGES arc-theme papirus-icon-theme gnome-themes-extra"
 
-# Development tools (for building EWW)
-PACKAGES="$PACKAGES gcc gtk3-devel glib2-devel webkit2gtk4.1-devel"
+# Development tools (for building EWW) - OS specific
+if [ -f /etc/fedora-release ]; then
+    PACKAGES="$PACKAGES gcc gtk3-devel glib2-devel webkit2gtk4.1-devel"
+elif [ -f /etc/debian_version ]; then
+    # Ubuntu/Debian package names
+    PACKAGES="$PACKAGES build-essential libgtk-3-dev libglib2.0-dev libwebkit2gtk-4.1-dev pkg-config"
+elif [ -f /etc/arch-release ]; then
+    PACKAGES="$PACKAGES gcc gtk3 glib2 webkit2gtk-4.1"
+fi
 
 # Install packages
 echo "Installing: $PACKAGES"
