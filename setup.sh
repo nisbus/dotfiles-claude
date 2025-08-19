@@ -57,6 +57,17 @@ if [ -f "$SCRIPT_DIR/xmonad/xmonad.hs" ]; then
     echo "✓ Xmonad configuration linked"
 fi
 
+# Xmobar
+if [ -f "$SCRIPT_DIR/xmobar/configure-xmobar.sh" ]; then
+    # Auto-detect network interfaces and generate xmobar config
+    "$SCRIPT_DIR/xmobar/configure-xmobar.sh"
+    create_symlink "$SCRIPT_DIR/xmobar/xmobarrc" "$HOME/.xmobarrc"
+    echo "✓ Xmobar configuration generated and linked"
+elif [ -f "$SCRIPT_DIR/xmobar/xmobarrc" ]; then
+    create_symlink "$SCRIPT_DIR/xmobar/xmobarrc" "$HOME/.xmobarrc"
+    echo "✓ Xmobar configuration linked"
+fi
+
 # Xresources
 if [ -f "$SCRIPT_DIR/Xresources" ]; then
     create_symlink "$SCRIPT_DIR/Xresources" "$HOME/.Xresources"

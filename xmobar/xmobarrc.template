@@ -1,0 +1,24 @@
+Config { font = "-*-Fixed-Bold-R-Normal-*-13-*-*-*-*-*-*-*"
+       , additionalFonts = []
+       , bgColor = "#282828"
+       , fgColor = "#fbf1c7"
+       , position = Top
+       , lowerOnStart = True
+       , hideOnStart = False
+       , allDesktops = True
+       , overrideRedirect = True
+       , pickBroadest = False
+       , persistent = True
+       , commands = [ Run Weather "LEBL" ["-t","<station>: <tempC>C","-L","18","-H","25","--normal","green","--high","red","--low","lightblue"] 36000
+                    __NETWORK_MONITORS__
+                    , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
+                    , Run Memory ["-t","Mem: <usedratio>%"] 10
+                    , Run Swap [] 10
+                    , Run Com "uname" ["-s","-r"] "" 36000
+                    , Run Date "<fc=#ebdbb2>%a %b %d, %Y</fc> <fc=#fabd2f>%H:%M:%S</fc>" "date" 10
+                    , Run StdinReader
+                    ]
+       , sepChar = "%"
+       , alignSep = "}{"
+       , template = "%StdinReader% | %cpu% | %memory% * %swap% }<fc=#83a598>🕐</fc> %date%{ __NETWORK_TEMPLATE__ | %LEBL% | %uname% "
+       }
