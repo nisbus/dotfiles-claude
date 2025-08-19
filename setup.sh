@@ -28,6 +28,7 @@ PACKAGES=(
     xrandr
     arandr
     autorandr
+    picom
 )
 
 # Font packages (will be mapped by get_package_name)
@@ -43,6 +44,7 @@ install_packages "${PACKAGES[@]}" "${FONT_PACKAGES[@]}"
 
 # Create necessary directories
 mkdir -p ~/.config/alacritty
+mkdir -p ~/.config/picom
 
 # Link configuration files
 echo "Linking configuration files..."
@@ -74,6 +76,12 @@ fi
 if [ -f "$SCRIPT_DIR/alacritty/alacritty.toml" ]; then
     create_symlink "$SCRIPT_DIR/alacritty/alacritty.toml" "$HOME/.config/alacritty/alacritty.toml"
     echo "✓ Alacritty configuration linked"
+fi
+
+# Picom compositor
+if [ -f "$SCRIPT_DIR/picom/picom.conf" ]; then
+    create_symlink "$SCRIPT_DIR/picom/picom.conf" "$HOME/.config/picom/picom.conf"
+    echo "✓ Picom configuration linked"
 fi
 
 # Xmodmap (if exists)

@@ -78,4 +78,14 @@ EOF
     fi
 fi
 
+# Save current theme for persistence across sessions
+echo "$THEME_NAME" > "$THEMES_DIR/current"
+
+# Restart picom to apply transparency changes
+if pgrep picom > /dev/null; then
+    killall picom
+    sleep 0.5
+fi
+picom -b --config ~/.config/picom/picom.conf 2>/dev/null || picom -b
+
 echo "Theme '$THEME_NAME' applied successfully!"

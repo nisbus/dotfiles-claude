@@ -58,5 +58,18 @@ if [ -x "$HOME/.config/xmonad/lockscreen/auto-lock.sh" ]; then
     "$HOME/.config/xmonad/lockscreen/auto-lock.sh" start &
 fi
 
+# Start system tray
+stalonetray &
+
+# Start network manager applet
+nm-applet --indicator &
+
+# Start volume control (pasystray for PulseAudio)
+# Set GTK theme for proper icon display
+GTK_THEME=Adwaita XDG_CURRENT_DESKTOP=GNOME pasystray &
+
+# Start Bluetooth manager
+blueman-applet &
+
 # Start XMonad
 exec xmonad

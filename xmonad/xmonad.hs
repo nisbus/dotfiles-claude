@@ -7,6 +7,7 @@ import XMonad.Util.Run(spawnPipe)
 import XMonad.Util.EZConfig(additionalKeys)
 import XMonad.Util.NamedScratchpad
 import XMonad.Hooks.ManageHelpers
+import XMonad.Actions.SpawnOn
 import qualified XMonad.StackSet as W
 import System.IO
 
@@ -17,18 +18,28 @@ scratchpads = [
        (customFloating $ W.RationalRect 0.15 0.0 0.7 0.35)
     ]
 
+-- Spawn terminal on current screen
+spawnTerminalHere :: X ()
+spawnTerminalHere = spawnHere "alacritty"
+
 main = do
     xmproc <- spawnPipe "xmobar"
-    spawn "xmodmap ~/.Xmodmap"
-    -- Start EWW widgets if available
-    spawn "eww daemon"
-    spawn "sleep 2 && eww open sliders"
-    spawn "sleep 2 && eww open system_info"
+    spawn "xmodmap ~/.Xmodmap 2>/dev/null || true"
+    -- Start EWW daemon and widgets with proper display detection
+    spawn "eww kill 2>/dev/null; eww daemon"
+    spawn "sleep 3 && ~/.config/xmonad/scripts/start-eww-widgets.sh"
     
     xmonad $ ewmhFullscreen $ ewmh $ docks def
         { manageHook = manageDocks 
                       <+> namedScratchpadManageHook scratchpads
                       <+> (className =? "xmonad-scratchpad" --> doFloat)
+                      <+> (className =? "InputLeap" --> doFloat)
+                      <+> (className =? "input-leap" --> doFloat)
+                      <+> (className =? "Input-leap" --> doFloat)
+                      <+> (className =? "input-leap-terminal" --> doFloat)
+                      <+> (title =? "Input Leap" --> doFloat)
+                      <+> (title =? "Configure Server" --> doFloat)
+                      <+> manageSpawn
                       <+> manageHook def
         , layoutHook = avoidStruts  $  layoutHook def
         , logHook = dynamicLogWithPP xmobarPP
@@ -42,8 +53,11 @@ main = do
         , focusedBorderColor = "#cd8b00"
         } `additionalKeys`
         [ 
+        -- Terminal spawn on current screen
+          ((mod4Mask .|. shiftMask, xK_Return), spawnTerminalHere)
+        
         -- Existing keybindings
-          ((mod4Mask .|. shiftMask, xK_z), spawn "~/.config/xmonad/lockscreen/lock.sh")
+        , ((mod4Mask .|. shiftMask, xK_z), spawn "~/.config/xmonad/lockscreen/lock.sh")
         , ((0, xK_Print), spawn "flameshot gui")
         , ((shiftMask, xK_Print), spawn "flameshot full -c")
         , ((controlMask, xK_Print), spawn "flameshot screen -c")
@@ -79,4 +93,7 @@ main = do
         -- Brightness keys
         , ((0, 0x1008FF03), spawn "brightnessctl s 5%-") -- XF86MonBrightnessDown
         , ((0, 0x1008FF02), spawn "brightnessctl s 5%+") -- XF86MonBrightnessUp
+        
+        -- Input Leap (Super + Shift + i)
+        , ((mod4Mask .|. shiftMask, xK_i), spawn "~/.config/xmonad/scripts/input-leap-wrapper.sh")
         ]
