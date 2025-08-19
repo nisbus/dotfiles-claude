@@ -10,6 +10,18 @@ export PATH="$HOME/bin:$PATH"
 # Set keyboard options
 setxkbmap -option ctrl:nocaps
 
+# Enable NumLock by default
+if command -v numlockx > /dev/null 2>&1; then
+    numlockx on
+elif command -v setleds > /dev/null 2>&1; then
+    # Fallback: try setleds for console (may not work in X)
+    setleds -D +num 2>/dev/null || true
+    # Also try xset if available
+    if command -v xset > /dev/null 2>&1; then
+        xset led named "Num Lock" 2>/dev/null || xset led 1 2>/dev/null || true
+    fi
+fi
+
 # Detect and configure monitors
 # First, explicitly detect and enable all connected displays
 if command -v xrandr > /dev/null 2>&1; then

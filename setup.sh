@@ -29,6 +29,7 @@ PACKAGES=(
     arandr
     autorandr
     picom
+    numlockx
 )
 
 # Font packages (will be mapped by get_package_name)
