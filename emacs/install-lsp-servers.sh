@@ -84,9 +84,31 @@ install_system_packages() {
             
         fedora|rhel|centos|rocky|almalinux)
             log_info "Installing packages for Fedora/RHEL/CentOS..."
-            sudo dnf update -y
+            # Update system - dnf5 doesn't support --skip-broken with update
+            if dnf --version 2>/dev/null | grep -q "^5\."; then
+                # dnf5 detected
+                sudo dnf update -y || true
+            else
+                # Traditional dnf
+                sudo dnf update -y --skip-broken || true
+            fi
             sudo dnf install -y curl wget git gcc make dnf-plugins-core
-            sudo dnf groupinstall -y "Development Tools"
+            
+            # Install development tools - handle different group names and dnf versions
+            if dnf group list --available 2>/dev/null | grep -q "Development Tools"; then
+                # Traditional group name exists
+                if dnf group --help &>/dev/null; then
+                    sudo dnf group install -y "Development Tools" --skip-unavailable || true
+                else
+                    sudo dnf groupinstall -y "Development Tools" --skip-unavailable || true
+                fi
+            else
+                # Fedora 42+ uses different package groups or individual packages
+                log_info "Installing individual development packages..."
+                sudo dnf install -y gcc-c++ make automake autoconf libtool pkgconfig \
+                    cmake ninja-build meson bison flex patch \
+                    redhat-rpm-config rpm-build rpmdevtools || true
+            fi
             
             # Install Node.js
             if ! command_exists node; then
@@ -288,6 +310,12 @@ install_erlang_lsp() {
     
     log_info "Installing Erlang LSP server (erlang_ls)..."
     
+    # Check if erlang_ls is already installed
+    if command_exists erlang_ls; then
+        log_success "erlang_ls is already installed"
+        return
+    fi
+    
     # Try package manager first
     case "$DISTRO" in
         ubuntu|debian)
@@ -313,7 +341,7 @@ install_erlang_lsp() {
     esac
     
     # Fallback to manual installation
-    log_info "Package manager installation failed, trying manual installation..."
+    log_info "Attempting to build erlang_ls from source..."
     
     # Try downloading pre-built binary
     local erlang_ls_url="https://github.com/erlang-ls/erlang_ls/releases/latest/download/erlang_ls"
@@ -463,7 +491,7 @@ verify_installations() {
     fi
     
     if command_exists elixir && [ "$INSTALL_ERLANG" = "yes" ]; then
-        echo "Elixir version: $(elixir --version | head -1)"
+        echo "Elixir version: $(elixir --version 2>/dev/null | head -1 || echo 'Installed but version check failed')"
     fi
     
     echo ""
