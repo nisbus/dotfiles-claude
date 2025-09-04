@@ -24,4 +24,4 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Theme submodules are tracked via .gitmodules
+# Theme submodules are tracked via .gitmodules*.dump

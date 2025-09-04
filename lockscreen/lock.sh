@@ -3,6 +3,7 @@
 # Based on gh0stzk's ScreenLocker, adapted for XMonad
 
 TEMP_IMAGE="/tmp/xmonad-lock.jpg"
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 
 # Colors (can be customized per theme)
 BG="1a1a1a"
@@ -26,6 +27,12 @@ blur_lock() {
         sudo dnf install -y i3lock
     fi
     
+    # Check if xset is installed (needed for DPMS control)
+    if ! command -v xset &> /dev/null; then
+        echo "Installing xset for display power management..."
+        sudo dnf install -y xset
+    fi
+    
     # Take screenshot and blur it
     maim -d 0.1 "$TEMP_IMAGE"
     
@@ -36,28 +43,41 @@ blur_lock() {
         magick "$TEMP_IMAGE" -blur 0x8 "$TEMP_IMAGE"
     fi
     
-    # Lock with i3lock
-    i3lock -n --force-clock -i "$TEMP_IMAGE" -e --indicator \
-        --radius=30 --ring-width=5 --inside-color=$BG \
-        --ring-color=$RING --insidever-color=$VERIFY --ringver-color=$VERIFY \
-        --insidewrong-color=$WRONG --ringwrong-color=$WRONG --line-uses-inside \
-        --keyhl-color=$VERIFY --separator-color=$VERIFY --bshl-color=$VERIFY \
-        --time-str="%H:%M" --time-size=80 --date-str="%a, %d %b" \
-        --date-size=25 --verif-text="Verifying..." --wrong-text="Wrong Password!" \
-        --noinput-text="" --greeter-text="Enter Password" \
-        --time-font="JetBrains Mono:style=Bold" --date-font="JetBrains Mono" \
-        --verif-font="JetBrains Mono" --greeter-font="JetBrains Mono" \
-        --wrong-font="JetBrains Mono" --verif-size=16 \
-        --greeter-size=18 --wrong-size=16 \
-        --date-color=$DATE --time-color=$DATE \
-        --greeter-color=$FG --wrong-color=$WRONG --verif-color=$VERIFY \
-        --pointer=default --refresh-rate=0 \
-        --pass-media-keys --pass-volume-keys
+    # Disable DPMS and screen blanking before locking
+    if [ -x "$SCRIPT_DIR/dpms-control.sh" ]; then
+        "$SCRIPT_DIR/dpms-control.sh" disable
+    else
+        if command -v xset &> /dev/null; then
+            xset s off
+            xset -dpms
+            xset s noblank
+        fi
+    fi
+    
+    # Lock with i3lock (standard version)
+    # Using basic i3lock options that are widely supported
+    i3lock -n -i "$TEMP_IMAGE" -e -t
+    
+    # Re-enable DPMS after unlocking
+    if [ -x "$SCRIPT_DIR/dpms-control.sh" ]; then
+        "$SCRIPT_DIR/dpms-control.sh" restore
+    else
+        if command -v xset &> /dev/null; then
+            xset s on
+            xset +dpms
+        fi
+    fi
 }
 
 # Function to use a wallpaper for lock screen
 wallpaper_lock() {
     WALLPAPER="$1"
+    
+    # Check if xset is installed (needed for DPMS control)
+    if ! command -v xset &> /dev/null; then
+        echo "Installing xset for display power management..."
+        sudo dnf install -y xset
+    fi
     
     if [ ! -f "$WALLPAPER" ]; then
         echo "Wallpaper not found, using blur lock instead"
@@ -86,23 +106,29 @@ wallpaper_lock() {
             ;;
     esac
     
-    # Lock with wallpaper
-    i3lock -n --force-clock -i "$TEMP_IMAGE" --fill -e --indicator \
-        --radius=30 --ring-width=5 --inside-color=$BG \
-        --ring-color=$RING --insidever-color=$VERIFY --ringver-color=$VERIFY \
-        --insidewrong-color=$WRONG --ringwrong-color=$WRONG --line-uses-inside \
-        --keyhl-color=$VERIFY --separator-color=$VERIFY --bshl-color=$VERIFY \
-        --time-str="%H:%M" --time-size=80 --date-str="%a, %d %b" \
-        --date-size=25 --verif-text="Verifying..." --wrong-text="Wrong Password!" \
-        --noinput-text="" --greeter-text="Enter Password" \
-        --time-font="JetBrains Mono:style=Bold" --date-font="JetBrains Mono" \
-        --verif-font="JetBrains Mono" --greeter-font="JetBrains Mono" \
-        --wrong-font="JetBrains Mono" --verif-size=16 \
-        --greeter-size=18 --wrong-size=16 \
-        --date-color=$DATE --time-color=$DATE \
-        --greeter-color=$FG --wrong-color=$WRONG --verif-color=$VERIFY \
-        --pointer=default --refresh-rate=0 \
-        --pass-media-keys --pass-volume-keys
+    # Disable DPMS and screen blanking before locking
+    if [ -x "$SCRIPT_DIR/dpms-control.sh" ]; then
+        "$SCRIPT_DIR/dpms-control.sh" disable
+    else
+        if command -v xset &> /dev/null; then
+            xset s off
+            xset -dpms
+            xset s noblank
+        fi
+    fi
+    
+    # Lock with wallpaper (standard i3lock version)
+    i3lock -n -i "$TEMP_IMAGE" -e -t
+    
+    # Re-enable DPMS after unlocking
+    if [ -x "$SCRIPT_DIR/dpms-control.sh" ]; then
+        "$SCRIPT_DIR/dpms-control.sh" restore
+    else
+        if command -v xset &> /dev/null; then
+            xset s on
+            xset +dpms
+        fi
+    fi
 }
 
 # Main logic

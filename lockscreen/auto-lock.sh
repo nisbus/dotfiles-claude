@@ -89,8 +89,18 @@ start_autolock() {
     # Set idle time
     XAUTOLOCK_CMD="$XAUTOLOCK_CMD -time $IDLE_TIME"
     
+    # Use the enhanced lock script if available
+    ENHANCED_LOCK_SCRIPT="$HOME/.config/xmonad/lockscreen/lock-enhanced.sh"
+    if [ ! -f "$ENHANCED_LOCK_SCRIPT" ]; then
+        # Fallback to directory where dotfiles are
+        ENHANCED_LOCK_SCRIPT="$(dirname "$LOCK_SCRIPT")/lock-enhanced.sh"
+    fi
+    
     # Set lock command based on method
-    if [ "$LOCK_METHOD" = "wallpaper" ]; then
+    if [ -f "$ENHANCED_LOCK_SCRIPT" ] && [ -x "$ENHANCED_LOCK_SCRIPT" ]; then
+        echo "Using enhanced lock script: $ENHANCED_LOCK_SCRIPT"
+        XAUTOLOCK_CMD="$XAUTOLOCK_CMD -locker '$ENHANCED_LOCK_SCRIPT'"
+    elif [ "$LOCK_METHOD" = "wallpaper" ]; then
         XAUTOLOCK_CMD="$XAUTOLOCK_CMD -locker '$LOCK_SCRIPT --wallpaper'"
     else
         XAUTOLOCK_CMD="$XAUTOLOCK_CMD -locker '$LOCK_SCRIPT'"
@@ -136,7 +146,15 @@ reload_autolock() {
 
 # Manual lock (useful for keybinding)
 lock_now() {
-    if [ "$1" = "wallpaper" ] || [ "$LOCK_METHOD" = "wallpaper" ]; then
+    # Use enhanced lock script if available
+    ENHANCED_LOCK_SCRIPT="$HOME/.config/xmonad/lockscreen/lock-enhanced.sh"
+    if [ ! -f "$ENHANCED_LOCK_SCRIPT" ]; then
+        ENHANCED_LOCK_SCRIPT="$(dirname "$LOCK_SCRIPT")/lock-enhanced.sh"
+    fi
+    
+    if [ -f "$ENHANCED_LOCK_SCRIPT" ] && [ -x "$ENHANCED_LOCK_SCRIPT" ]; then
+        $ENHANCED_LOCK_SCRIPT
+    elif [ "$1" = "wallpaper" ] || [ "$LOCK_METHOD" = "wallpaper" ]; then
         $LOCK_SCRIPT --wallpaper
     else
         $LOCK_SCRIPT
