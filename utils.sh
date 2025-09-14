@@ -88,6 +88,14 @@ get_package_name() {
                 "cascadia-code-fonts") echo "fonts-cascadia-code" ;;
                 "hack-fonts") echo "fonts-hack" ;;
                 "nodejs") echo "nodejs" ;;
+                "xrandr") echo "x11-xserver-utils" ;;
+                "build-essential") echo "build-essential" ;;
+                "gcc-c++") echo "g++" ;;
+                "fd-find") echo "fd-find" ;;
+                "ripgrep") echo "ripgrep" ;;
+                "bat") echo "bat" ;;
+                "neovim") echo "neovim" ;;
+                "ncdu") echo "ncdu" ;;
                 *) echo "$pkg" ;;
             esac
             ;;
@@ -111,29 +119,71 @@ get_package_name() {
     esac
 }
 
-# Install packages with proper name mapping
+# Check if a package is already installed
+is_package_installed() {
+    local pkg="$1"
+    local mapped_pkg=$(get_package_name "$pkg")
+
+    case "$PKG_MANAGER" in
+        apt)
+            dpkg -l "$mapped_pkg" 2>/dev/null | grep -q '^ii'
+            ;;
+        dnf|yum)
+            rpm -q "$mapped_pkg" &>/dev/null
+            ;;
+        pacman)
+            pacman -Qi "$mapped_pkg" &>/dev/null
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+}
+
+# Install packages with proper name mapping and optimization
 install_packages() {
     detect_os
-    
+
     if [ "$PKG_MANAGER" = "unknown" ]; then
         echo -e "${RED}Unable to detect package manager. Please install packages manually.${NC}"
         return 1
     fi
-    
+
     echo -e "${GREEN}Using package manager: $PKG_MANAGER${NC}"
-    
-    # Update package lists
+
+    # Check which packages actually need installation
+    local packages_to_install=()
+    local already_installed=()
+
+    for pkg in "$@"; do
+        local mapped_pkg=$(get_package_name "$pkg")
+        if is_package_installed "$pkg"; then
+            already_installed+=("$mapped_pkg")
+        else
+            packages_to_install+=("$mapped_pkg")
+        fi
+    done
+
+    # Report already installed packages
+    if [ ${#already_installed[@]} -gt 0 ]; then
+        echo -e "${YELLOW}Already installed: ${already_installed[*]}${NC}"
+    fi
+
+    # Only proceed with installation if there are packages to install
+    if [ ${#packages_to_install[@]} -eq 0 ]; then
+        echo -e "${GREEN}All requested packages are already installed${NC}"
+        return 0
+    fi
+
+    # Update package lists only once, only if we have packages to install
     if [ -n "$PKG_UPDATE" ]; then
         echo -e "${GREEN}Updating package lists...${NC}"
         eval "$PKG_UPDATE"
     fi
-    
-    # Install each package with proper name mapping
-    for pkg in "$@"; do
-        local mapped_pkg=$(get_package_name "$pkg")
-        echo -e "${GREEN}Installing $mapped_pkg...${NC}"
-        eval "$PKG_INSTALL $mapped_pkg" || echo -e "${YELLOW}Warning: Failed to install $mapped_pkg${NC}"
-    done
+
+    # Install packages that need installation
+    echo -e "${GREEN}Installing: ${packages_to_install[*]}${NC}"
+    eval "$PKG_INSTALL ${packages_to_install[*]}" || echo -e "${YELLOW}Warning: Some packages failed to install${NC}"
 }
 
 # Check if a command exists

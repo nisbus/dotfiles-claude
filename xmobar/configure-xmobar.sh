@@ -39,9 +39,33 @@ fi
 # Create the xmobar config from template
 cp "$TEMPLATE" "$OUTPUT"
 
-# Replace placeholders
-sed -i "s|__NETWORK_MONITORS__|$NETWORK_MONITORS|g" "$OUTPUT"
-sed -i "s|__NETWORK_TEMPLATE__|$NETWORK_TEMPLATE|g" "$OUTPUT"
+# Replace placeholders using Python for reliable text replacement
+if command -v python3 &> /dev/null; then
+    python3 -c "
+import sys
+content = open('$OUTPUT', 'r').read()
+content = content.replace('__NETWORK_MONITORS__', '''$NETWORK_MONITORS''')
+content = content.replace('__NETWORK_TEMPLATE__', '''$NETWORK_TEMPLATE''')
+open('$OUTPUT', 'w').write(content)
+"
+else
+    # Fallback: Use temporary file approach with sed
+    temp_file=$(mktemp)
+    while IFS= read -r line; do
+        case "$line" in
+            *__NETWORK_MONITORS__*)
+                echo "$line" | sed "s/__NETWORK_MONITORS__/$NETWORK_MONITORS/"
+                ;;
+            *__NETWORK_TEMPLATE__*)
+                echo "$line" | sed "s/__NETWORK_TEMPLATE__/$NETWORK_TEMPLATE/"
+                ;;
+            *)
+                echo "$line"
+                ;;
+        esac
+    done < "$OUTPUT" > "$temp_file"
+    mv "$temp_file" "$OUTPUT"
+fi
 
 echo "XMobar configured with:"
 [ -n "$ETH_IFACE" ] && echo "  - Ethernet: $ETH_IFACE"

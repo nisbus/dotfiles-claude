@@ -43,14 +43,16 @@ install_oh_my_zsh() {
     
     # zsh-autosuggestions
     if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ]; then
-        git clone https://github.com/zsh-users/zsh-autosuggestions \
-            ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+        echo "Installing zsh-autosuggestions plugin..."
+        timeout 30 git clone https://github.com/zsh-users/zsh-autosuggestions \
+            ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions || echo "Failed to install zsh-autosuggestions"
     fi
-    
+
     # zsh-syntax-highlighting
     if [ ! -d "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting" ]; then
-        git clone https://github.com/zsh-users/zsh-syntax-highlighting \
-            ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+        echo "Installing zsh-syntax-highlighting plugin..."
+        timeout 30 git clone https://github.com/zsh-users/zsh-syntax-highlighting \
+            ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting || echo "Failed to install zsh-syntax-highlighting"
     fi
 }
 
@@ -104,18 +106,50 @@ install_golang() {
     fi
 }
 
+# Download with retry logic
+download_with_retry() {
+    local url="$1"
+    local output="$2"
+    local max_attempts=3
+    local timeout_duration=30
+    local attempt=1
+
+    while [ $attempt -le $max_attempts ]; do
+        echo -e "${GREEN}Download attempt $attempt/$max_attempts: $url${NC}"
+
+        if timeout $timeout_duration wget -q -O "$output" "$url"; then
+            echo -e "${GREEN}Download successful${NC}"
+            return 0
+        else
+            local exit_code=$?
+            echo -e "${YELLOW}Download attempt $attempt failed (exit code: $exit_code)${NC}"
+
+            # Clean up partial download
+            [ -f "$output" ] && rm -f "$output"
+
+            if [ $attempt -eq $max_attempts ]; then
+                echo -e "${RED}All download attempts failed for: $url${NC}"
+                return 1
+            fi
+
+            # Wait before retry (exponential backoff)
+            local wait_time=$((attempt * 5))
+            echo -e "${YELLOW}Waiting ${wait_time}s before retry...${NC}"
+            sleep $wait_time
+        fi
+
+        attempt=$((attempt + 1))
+    done
+}
+
 # Install Erlang/OTP
 install_erlang() {
     echo -e "\n${GREEN}Installing Erlang/OTP...${NC}"
-    
+
     case "$PKG_MANAGER" in
         apt)
-            # Add Erlang Solutions repository for latest version
-            wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add - 2>/dev/null || true
-            echo "deb https://packages.erlang-solutions.com/ubuntu $(lsb_release -cs 2>/dev/null || echo "focal") contrib" | \
-                sudo tee /etc/apt/sources.list.d/erlang-solutions.list > /dev/null
-            sudo apt-get update
-            install_packages esl-erlang elixir
+            # For Ubuntu, use default repositories instead of Erlang Solutions (more reliable)
+            install_packages erlang erlang-dev erlang-doc elixir
             ;;
         dnf)
             install_packages erlang erlang-dialyzer erlang-doc elixir
@@ -136,28 +170,24 @@ install_erlang() {
             echo -e "${YELLOW}Please install Erlang manually for your system${NC}"
             ;;
     esac
-    
+
     # Install rebar3 (Erlang build tool)
     if ! command_exists rebar3; then
         echo -e "${GREEN}Installing rebar3...${NC}"
-        wget -q -O /tmp/rebar3 https://s3.amazonaws.com/rebar3/rebar3
-        chmod +x /tmp/rebar3
-        sudo mv /tmp/rebar3 /usr/local/bin/rebar3
+        if download_with_retry "https://s3.amazonaws.com/rebar3/rebar3" "/tmp/rebar3"; then
+            chmod +x /tmp/rebar3
+            sudo mv /tmp/rebar3 /usr/local/bin/rebar3
+            echo -e "${GREEN}rebar3 installed successfully${NC}"
+        else
+            echo -e "${RED}Failed to install rebar3 after multiple attempts${NC}"
+        fi
     fi
-    
-    # Install erlang_ls (Erlang Language Server)
-    if ! command_exists erlang_ls; then
-        echo -e "${GREEN}Installing erlang_ls (Erlang Language Server)...${NC}"
-        # Clone and build erlang_ls
-        git clone https://github.com/erlang-ls/erlang_ls.git /tmp/erlang_ls 2>/dev/null || true
-        cd /tmp/erlang_ls
-        make
-        sudo make install PREFIX=/usr/local
-        cd -
-        rm -rf /tmp/erlang_ls
-    fi
-    
-    echo -e "${GREEN}Erlang/OTP installed successfully${NC}"
+
+    # Skip erlang_ls compilation for Ubuntu (can be installed manually later if needed)
+    echo -e "${YELLOW}Skipping erlang_ls compilation (can be installed manually later if needed)${NC}"
+    echo -e "${GREEN}Use 'sudo apt install erlang-dev rebar3' and manual build if needed${NC}"
+
+    echo -e "${GREEN}Erlang/OTP installation completed${NC}"
 }
 
 # Install Python and development tools
@@ -298,22 +328,9 @@ install_docker() {
                 install_packages docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
                 ;;
             apt)
-                # Ubuntu/Debian
-                sudo apt-get remove -y docker docker-engine docker.io containerd runc 2>/dev/null || true
-                
-                install_packages ca-certificates gnupg lsb-release
-                
-                # Add Docker's official GPG key
-                sudo mkdir -p /etc/apt/keyrings
-                curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-                
-                # Set up repository
-                echo \
-                  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-                  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-                
-                sudo apt-get update
-                install_packages docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+                # Ubuntu/Debian - use system packages for reliability
+                echo -e "${GREEN}Installing Docker from Ubuntu repositories...${NC}"
+                install_packages docker.io docker-compose docker-buildx
                 ;;
             yum)
                 # RHEL/CentOS
@@ -389,7 +406,7 @@ install_dev_tools() {
             install_packages emacs emacs-x11
             ;;
         apt-get|apt)
-            install_packages emacs emacs-gtk
+            install_packages emacs
             ;;
         pacman)
             install_packages emacs
@@ -412,7 +429,7 @@ install_dev_tools() {
                 elif [ "$PKG_MANAGER" = "pacman" ]; then
                     install_packages base-devel
                 elif [ "$PKG_MANAGER" = "zypper" ]; then
-                    install_packages -t pattern devel_basis
+                    sudo zypper install -t pattern devel_basis
                 else
                     install_packages build-essential
                 fi

@@ -61,7 +61,7 @@ main = do
         , ((0, xK_Print), spawn "flameshot gui")
         , ((shiftMask, xK_Print), spawn "flameshot full -c")
         , ((controlMask, xK_Print), spawn "flameshot screen -c")
-        , ((mod4Mask, xK_p), spawn "PATH=$HOME/bin:$PATH dmenu_run")
+        , ((mod4Mask, xK_p), spawn "PATH=$HOME/.local/bin:$HOME/bin:$PATH dmenu_run")
         , ((mod4Mask, xK_n), spawn "networkmanager_dmenu")
         , ((controlMask .|. shiftMask, xK_c), spawn "xclip -selection clipboard")
         , ((controlMask .|. shiftMask, xK_v), spawn "xclip -selection clipboard -o | xdotool type --clearmodifiers --file -")

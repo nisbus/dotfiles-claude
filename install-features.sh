@@ -3,48 +3,20 @@
 
 set -e  # Exit on error
 
+# Load utility functions
+source "$(dirname "$0")/utils.sh"
+
 echo "==================================="
 echo "XMonad Features Installation Script"
 echo "==================================="
 
-# Detect OS
-if [ -f /etc/fedora-release ]; then
-    PKG_MANAGER="sudo dnf"
-    PKG_INSTALL="install -y"
-elif [ -f /etc/debian_version ]; then
-    PKG_MANAGER="sudo apt-get"
-    PKG_INSTALL="install -y"
-elif [ -f /etc/arch-release ]; then
-    PKG_MANAGER="sudo pacman"
-    PKG_INSTALL="-S --noconfirm"
-else
-    echo "Unsupported distribution. Please install packages manually."
-    exit 1
-fi
-
 echo "Installing system packages..."
 
-# Core packages
-PACKAGES="picom dunst rofi i3lock xautolock flameshot maim xdotool xsettingsd"
+# Install core packages
+install_packages picom dunst rofi i3lock xautolock flameshot maim xdotool xsettingsd arc-theme papirus-icon-theme gnome-themes-extra
 
-# GTK themes and icons
-PACKAGES="$PACKAGES arc-theme papirus-icon-theme gnome-themes-extra"
-
-# Development tools (for building EWW) - OS specific
-if [ -f /etc/fedora-release ]; then
-    PACKAGES="$PACKAGES gcc gtk3-devel glib2-devel webkit2gtk4.1-devel"
-elif [ -f /etc/debian_version ]; then
-    # Ubuntu/Debian package names
-    PACKAGES="$PACKAGES build-essential libgtk-3-dev libglib2.0-dev libwebkit2gtk-4.1-dev pkg-config"
-elif [ -f /etc/arch-release ]; then
-    PACKAGES="$PACKAGES gcc gtk3 glib2 webkit2gtk-4.1"
-fi
-
-# Install packages
-echo "Installing: $PACKAGES"
-$PKG_MANAGER $PKG_INSTALL $PACKAGES || {
-    echo "Some packages failed to install. Continuing..."
-}
+# Install development tools for building EWW
+install_packages build-essential libgtk-3-dev libglib2.0-dev libwebkit2gtk-4.1-dev pkg-config libdbusmenu-glib-dev libdbusmenu-gtk3-dev
 
 # Install Rust (for EWW) if not present
 if ! command -v cargo &> /dev/null; then
@@ -53,19 +25,12 @@ if ! command -v cargo &> /dev/null; then
     source "$HOME/.cargo/env"
 fi
 
-# Install EWW
-echo "Installing EWW (Elkowar's Wacky Widgets)..."
-if ! command -v eww &> /dev/null; then
-    cd /tmp
-    git clone https://github.com/elkowar/eww
-    cd eww
-    cargo build --release --no-default-features --features wayland
-    sudo cp target/release/eww /usr/local/bin/
-    cd -
-    rm -rf /tmp/eww
-else
-    echo "EWW already installed"
-fi
+# Skip EWW installation for now (can be built manually if needed)
+echo "Skipping EWW (Elkowar's Wacky Widgets) installation..."
+echo "EWW can be installed manually later with the following commands:"
+echo "  git clone https://github.com/elkowar/eww"
+echo "  cd eww && cargo build --release --no-default-features --features wayland"
+echo "  sudo cp target/release/eww /usr/local/bin/"
 
 # Create config directories
 echo "Creating configuration directories..."

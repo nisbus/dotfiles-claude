@@ -237,6 +237,8 @@ alias ports="netstat -tulanp"
 alias myip="curl http://ipecho.net/plain; echo"
 alias weather="curl wttr.in"
 
+# Claude aliases
+alias c="claude --dangerously-skip-permissions"
 # ============================================================================
 # Functions
 # ============================================================================
@@ -364,3 +366,6 @@ command -v node &> /dev/null && echo "  • Node.js $(node --version)"
 command -v npm &> /dev/null && echo "  • npm $(npm --version)"
 command -v docker &> /dev/null && echo "  • Docker $(docker --version 2>/dev/null | awk '{print $3}' | tr -d ',')"
 echo ""
+
+# Add cursor to PATH
+export PATH="$HOME/.local/bin:$PATH"

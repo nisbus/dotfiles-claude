@@ -1,29 +1,26 @@
-#!/bin/sh
-# Set Caps Lock as Ctrl
-setxkbmap -option ctrl:nocaps
+#!/bin/bash
+# XMonad startup xinitrc
+# This will use the xmonad-start script that includes system tray components
 
-# Auto-configure external monitors
-# Get the primary display (usually eDP-1, eDP1, or LVDS-1 for laptops)
-PRIMARY=$(xrandr | grep " connected primary" | cut -d' ' -f1)
-# If no primary is set, try to find the laptop display
-if [ -z "$PRIMARY" ]; then
-    PRIMARY=$(xrandr | grep -E "^(eDP|LVDS|LVDS-?[0-9]|eDP-?[0-9]) connected" | head -n1 | cut -d' ' -f1)
-fi
+# Use the xmonad-start script if it exists, otherwise fallback to basic xmonad
+if [ -x "$HOME/.xmonad/xmonad-start" ]; then
+    exec "$HOME/.xmonad/xmonad-start"
+else
+    # Fallback: basic XMonad startup
+    # Set Caps Lock as Ctrl
+    setxkbmap -option ctrl:nocaps
 
-# Configure any connected external monitors
-if [ -n "$PRIMARY" ]; then
-    # Find all connected monitors except the primary
-    EXTERNALS=$(xrandr | grep " connected" | grep -v "$PRIMARY" | cut -d' ' -f1)
-    
-    if [ -n "$EXTERNALS" ]; then
-        # Position each external monitor to the right of the previous one
-        PREVIOUS="$PRIMARY"
-        for MONITOR in $EXTERNALS; do
-            xrandr --output "$MONITOR" --auto --right-of "$PREVIOUS"
-            PREVIOUS="$MONITOR"
-        done
+    # Start system tray components manually
+    stalonetray &
+    nm-applet --indicator &
+    sleep 2
+    pasystray &
+    blueman-applet &
+
+    # Start compositor
+    if command -v picom > /dev/null 2>&1; then
+        picom -b --config ~/.config/picom/picom.conf 2>/dev/null || picom -b &
     fi
-fi
 
-# Start Emacs with EXWM
-exec emacs --eval "(require 'exwm)" --eval "(require 'exwm-config)" --eval "(exwm-config-default)"
+    exec xmonad
+fi
