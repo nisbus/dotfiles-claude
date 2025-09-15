@@ -1,0 +1,14 @@
+[Unit]
+Description=Monitor USB devices and remap Caps Lock to Ctrl
+After=multi-user.target
+
+[Service]
+Type=simple
+User=valdimar
+Environment="DISPLAY=:0"
+ExecStart=/home/valdimar/dotfiles-claude/scripts/monitor-usb-keyboard.sh
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=default.target

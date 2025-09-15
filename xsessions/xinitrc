@@ -2,6 +2,26 @@
 # XMonad startup xinitrc
 # This will use the xmonad-start script that includes system tray components
 
+# Disable DPMS to prevent screen blanking conflicts with screen lock
+# This prevents the input freeze issue when DPMS blanks before xautolock
+xset dpms 0 0 0
+xset -dpms
+xset s off
+xset s noblank
+
+# Also start the USB keyboard monitor in background
+if [ -x /home/valdimar/dotfiles-claude/scripts/monitor-usb-keyboard.sh ]; then
+    /home/valdimar/dotfiles-claude/scripts/monitor-usb-keyboard.sh &
+fi
+
+# Auto-configure external monitors
+# Get the primary display (usually eDP-1, eDP1, or LVDS-1 for laptops)
+PRIMARY=$(xrandr | grep " connected primary" | cut -d' ' -f1)
+# If no primary is set, try to find the laptop display
+if [ -z "$PRIMARY" ]; then
+    PRIMARY=$(xrandr | grep -E "^(eDP|LVDS|LVDS-?[0-9]|eDP-?[0-9]) connected" | head -n1 | cut -d' ' -f1)
+fi
+
 # Use the xmonad-start script if it exists, otherwise fallback to basic xmonad
 if [ -x "$HOME/.xmonad/xmonad-start" ]; then
     exec "$HOME/.xmonad/xmonad-start"

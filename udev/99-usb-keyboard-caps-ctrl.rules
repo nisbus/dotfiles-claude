@@ -1,0 +1,9 @@
+# Automatically remap Caps Lock to Ctrl when USB keyboard is connected
+# This rule triggers when any USB keyboard is connected
+ACTION=="add", SUBSYSTEM=="input", ATTRS{bInterfaceProtocol}=="01", ATTRS{bInterfaceSubClass}=="01", RUN+="/home/valdimar/dotfiles-claude/scripts/remap-caps-to-ctrl.sh"
+
+# Alternative rule that matches by USB HID devices (keyboards/mice)
+ACTION=="add", SUBSYSTEM=="usb", ATTR{bInterfaceClass}=="03", ATTR{bInterfaceProtocol}=="01", RUN+="/home/valdimar/dotfiles-claude/scripts/remap-caps-to-ctrl.sh"
+
+# Rule for input devices that identify as keyboards
+ACTION=="add", SUBSYSTEM=="input", ENV{ID_INPUT_KEYBOARD}=="1", RUN+="/home/valdimar/dotfiles-claude/scripts/remap-caps-to-ctrl.sh"

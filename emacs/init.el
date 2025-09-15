@@ -106,7 +106,22 @@
 (use-package flycheck
   :ensure t
   :defer t
-  :hook (after-init . global-flycheck-mode))
+  :hook (after-init . global-flycheck-mode)
+  :config
+  ;; Disable line length warnings for Python (E501)
+  (setq flycheck-flake8-maximum-line-length 999)
+  (setq flycheck-pylint-use-symbolic-id nil)
+  (add-to-list 'flycheck-disabled-checkers 'python-pylint)
+  ;; Optional: if you want to keep flake8 but just ignore E501
+  (setq flycheck-flake8rc nil)
+  (setq flycheck-python-flake8-executable "flake8")
+  (setq flycheck-flake8-error-level-alist
+        '(("E501" . warning)))  ; Downgrade E501 to warning
+  ;; Completely ignore E501 errors
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (setq flycheck-checker-error-threshold 999)
+              (setq flycheck-flake8-args '("--ignore=E501")))))
 
 ;; Which-key for discovering keybindings
 (use-package which-key
@@ -377,7 +392,14 @@
   (setq lsp-pyright-auto-search-paths t)
   (setq lsp-pyright-log-level "trace")
   (setq lsp-pyright-multi-root t)
-  (setq lsp-pyright-use-library-code-for-types t))
+  (setq lsp-pyright-use-library-code-for-types t)
+  ;; Disable line length diagnostics from pyright
+  (setq lsp-pyright-disable-language-services nil)
+  (setq lsp-pyright-disable-organize-imports nil)
+  ;; Tell LSP to ignore line length issues
+  (setq lsp-pylsp-plugins-pycodestyle-enabled nil)
+  (setq lsp-pylsp-plugins-pycodestyle-ignore '("E501"))
+  (setq lsp-pylsp-plugins-pycodestyle-max-line-length 999))
 
 ;; Python virtual environment management
 (use-package pyvenv
@@ -401,7 +423,7 @@
   :hook (python-mode . blacken-mode)
   :config
   (setq blacken-fast-unsafe t)
-  (setq blacken-line-length 88))
+  (setq blacken-line-length 120))  ; Increased from 88 to 120
 
 ;; Python import sorting with isort
 (use-package py-isort
@@ -470,12 +492,55 @@
   :hook (python-mode . python-docstring-mode)
   :config
   ;; Only apply docstring rules to Python files
-  (setq python-docstring-length-limit 88)  ; Match Black line length
+  (setq python-docstring-length-limit 120)  ; Increased to 120
   (add-hook 'python-mode-hook
             (lambda ()
-              (setq-local fill-column 88))))
+              (setq-local fill-column 120))))  ; Increased to 120
 
 ;; Python functions moved above to avoid void-function errors
+
+;; ============================================================================
+;; Tiltfile Support (Kubernetes Development)
+;; ============================================================================
+
+;; Tiltfile mode - derives from python-mode for Starlark syntax
+(with-eval-after-load 'python
+  (define-derived-mode tiltfile-mode
+    python-mode "Tiltfile"
+    "Major mode for editing Tiltfiles (Tilt Dev configuration)."
+    (setq-local case-fold-search nil)
+    ;; Set indentation to 2 spaces as recommended for Starlark/Tiltfiles
+    (setq-local python-indent-offset 2)
+    (setq-local tab-width 2)))
+
+;; Auto-detect Tiltfiles
+(add-to-list 'auto-mode-alist '("Tiltfile\\'" . tiltfile-mode))
+(add-to-list 'auto-mode-alist '("\\.tilt\\'" . tiltfile-mode))
+
+;; LSP support for Tiltfiles
+(with-eval-after-load 'lsp-mode
+  ;; Register tiltfile-mode with lsp-mode
+  (add-to-list 'lsp-language-id-configuration
+               '(tiltfile-mode . "tiltfile"))
+  
+  ;; Register Tilt LSP client
+  (lsp-register-client
+   (make-lsp-client :new-connection (lsp-stdio-connection '("tilt" "lsp" "start"))
+                    :activation-fn (lsp-activate-on "tiltfile")
+                    :priority -1
+                    :server-id 'tilt-lsp
+                    :major-modes '(tiltfile-mode)
+                    ;; Auto-detect project root for Tiltfiles
+                    :project-root-files '("Tiltfile" ".git" "go.mod" "package.json" 
+                                          "Cargo.toml" "pom.xml" "build.gradle"
+                                          "requirements.txt" "setup.py" "pyproject.toml")))
+  
+  ;; Add tiltfile-mode to lsp-deferred hook with auto-approve
+  (add-hook 'tiltfile-mode-hook 
+            (lambda ()
+              ;; Auto-select project root without prompting
+              (setq-local lsp-auto-guess-root t)
+              (lsp-deferred))))
 
 ;; ============================================================================
 ;; LSP (Language Server Protocol)
@@ -494,6 +559,8 @@
          (python-mode . lsp-deferred))
   :init
   (setq lsp-keymap-prefix "C-c l")
+  ;; Auto-guess project root to reduce prompts
+  (setq lsp-auto-guess-root t)
   :config
   (setq lsp-enable-snippet t)
   (setq lsp-enable-on-type-formatting t)
@@ -542,6 +609,13 @@
   :after (lsp-mode treemacs)
   :config
   (lsp-treemacs-sync-mode 1))
+
+;; ============================================================================
+;; Shellspec Support
+;; ============================================================================
+
+;; Load shellspec-mode for editing shellspec test files
+(load (expand-file-name "shellspec-mode.el" (file-name-directory load-file-name)))
 
 ;; ============================================================================
 ;; YAML Support

@@ -24,4 +24,8 @@ Thumbs.db
 *.tmp
 *.temp
 
-# Theme submodules are tracked via .gitmodules*.dump
+# Theme submodules are tracked via .gitmodules
+
+# Erlang crash dumps
+erl_crash.dump
+*.dump

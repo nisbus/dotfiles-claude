@@ -1,0 +1,14 @@
+[Unit]
+Description=Remap Caps Lock to Ctrl for all keyboards
+After=multi-user.target graphical.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=valdimar
+Environment="DISPLAY=:0"
+ExecStart=/bin/bash -c 'sleep 2 && setxkbmap -option ctrl:nocaps'
+ExecStartPost=/bin/bash -c 'echo "$(date): Caps to Ctrl remapping applied" >> /tmp/caps-to-ctrl-service.log'
+
+[Install]
+WantedBy=default.target
