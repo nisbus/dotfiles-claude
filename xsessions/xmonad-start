@@ -65,10 +65,13 @@ elif command -v compton > /dev/null 2>&1; then
     compton -b
 fi
 
-# Start auto-lock for security compliance
-if [ -x "$HOME/.config/xmonad/lockscreen/auto-lock.sh" ]; then
-    "$HOME/.config/xmonad/lockscreen/auto-lock.sh" start &
-fi
+# Configure GNOME screensaver for security compliance (10 min timeout)
+gsettings set org.gnome.desktop.session idle-delay 600 2>/dev/null
+gsettings set org.gnome.desktop.screensaver idle-activation-enabled true 2>/dev/null
+gsettings set org.gnome.desktop.screensaver lock-enabled true 2>/dev/null
+gsettings set org.gnome.desktop.screensaver lock-delay 0 2>/dev/null
+
+# Note: Using GNOME's native screensaver instead of xautolock for better compatibility
 
 # Start system tray
 stalonetray &

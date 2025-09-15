@@ -57,7 +57,7 @@ main = do
           ((mod4Mask .|. shiftMask, xK_Return), spawnTerminalHere)
         
         -- Existing keybindings
-        , ((mod4Mask .|. shiftMask, xK_z), spawn "~/.config/xmonad/lockscreen/lock.sh")
+        , ((mod4Mask .|. shiftMask, xK_z), spawn "dbus-send --session --dest=org.gnome.Shell --type=method_call /org/gnome/ScreenSaver org.gnome.ScreenSaver.Lock")
         , ((0, xK_Print), spawn "flameshot gui")
         , ((shiftMask, xK_Print), spawn "flameshot full -c")
         , ((controlMask, xK_Print), spawn "flameshot screen -c")
@@ -82,8 +82,6 @@ main = do
         -- Power menu (Super + Shift + p)
         , ((mod4Mask .|. shiftMask, xK_p), spawn "~/.config/xmonad/scripts/toggle-power-menu.sh")
         
-        -- Lock screen with wallpaper (Super + l)
-        , ((mod4Mask, xK_l), spawn "~/.config/xmonad/lockscreen/lock.sh -w")
         
         -- Media keys
         , ((0, 0x1008FF11), spawn "amixer -D pulse sset Master 5%-")  -- XF86AudioLowerVolume
