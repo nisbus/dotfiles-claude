@@ -351,32 +351,33 @@
                    (projectile-project-root)
                    (file-name-nondirectory buffer-file-name))))
 
-;; Python mode with enhanced features
-(use-package python-mode
-  :ensure t
+;; Python mode configuration (using built-in python.el)
+(use-package python
+  :ensure nil  ; Built-in package, no need to install
   :defer t
   :mode ("\\.py\\'" . python-mode)
   :hook ((python-mode . lsp-deferred)
-         (python-mode . company-mode))
+         (python-mode . company-mode)
+         (python-mode . (lambda ()
+                         ;; Ensure font-lock is enabled for syntax highlighting
+                         (font-lock-mode 1)
+                         (font-lock-fontify-buffer))))
   :bind (:map python-mode-map
               ("C-c C-p" . my/python-run-buffer)
               ("C-c C-t" . my/python-run-pytest-file)
-              ("C-c i" . my/python-add-import)
-              ("C-c C-z" . python-shell-switch-to-shell))
+              ("C-c i" . my/python-add-import))
   :config
   ;; Set Python interpreter
   (when (executable-find "python3")
-    (setq python-shell-interpreter "python3"))
-  
-  ;; Enable autopep8 formatting on save
-  (add-hook 'python-mode-hook
-            (lambda ()
-              (when (executable-find "autopep8")
-                (add-hook 'before-save-hook 'py-autopep8-before-save nil t))))
+    (setq python-shell-interpreter "python3"
+          python-shell-interpreter-args "-i"))
   
   ;; Set indentation
   (setq python-indent-offset 4)
-  (setq python-indent-guess-indent-offset-verbose nil))
+  (setq python-indent-guess-indent-offset-verbose nil)
+  
+  ;; Ensure syntax highlighting is properly initialized
+  (setq python-font-lock-keywords python-font-lock-keywords-level-2))
 
 ;; LSP Python server (Pyright)
 (use-package lsp-pyright
@@ -404,7 +405,7 @@
 ;; Python virtual environment management
 (use-package pyvenv
   :ensure t
-  :after python-mode
+  :after python
   :config
   ;; Auto-activate virtualenv if .venv directory exists
   (add-hook 'python-mode-hook
@@ -419,7 +420,7 @@
 ;; Python code formatting with Black
 (use-package blacken
   :ensure t
-  :after python-mode
+  :after python
   :hook (python-mode . blacken-mode)
   :config
   (setq blacken-fast-unsafe t)
@@ -428,7 +429,7 @@
 ;; Python import sorting with isort
 (use-package py-isort
   :ensure t
-  :after python-mode
+  :after python
   :hook (python-mode . py-isort-before-save))
 
 ;; Python debugging with dap-mode
@@ -456,7 +457,7 @@
 ;; Python testing with pytest
 (use-package python-pytest
   :ensure t
-  :after python-mode
+  :after python
   :bind (:map python-mode-map
               ("C-c t t" . python-pytest-run-all)
               ("C-c t f" . python-pytest-run-file)
@@ -467,7 +468,7 @@
   (setq python-pytest-arguments '("--color=yes" "--failed-first" "--maxfail=5")))
 
 ;; Python REPL integration (built-in)
-(with-eval-after-load 'python-mode
+(with-eval-after-load 'python
   ;; Enable completion in Python shell
   (setq python-shell-completion-native-enable t)
   ;; Set shell prompt regex
@@ -488,7 +489,7 @@
 ;; Python docstring support
 (use-package python-docstring
   :ensure t
-  :after python-mode
+  :after python
   :hook (python-mode . python-docstring-mode)
   :config
   ;; Only apply docstring rules to Python files
