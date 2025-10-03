@@ -10,17 +10,69 @@ import XMonad.Hooks.ManageHelpers
 import XMonad.Actions.SpawnOn
 import qualified XMonad.StackSet as W
 import System.IO
+import XMonad.Layout.LayoutModifier
+import XMonad.Layout.Spacing
+import XMonad.Layout.Gaps
+import XMonad.Layout.Reflect
+import XMonad.Layout.MultiColumns
+import qualified Data.Map as M
 
 -- Scratchpad definition
 scratchpads = [
-    NS "scratchpad" "alacritty --class xmonad-scratchpad,xmonad-scratchpad" 
-       (className =? "xmonad-scratchpad") 
+    NS "scratchpad" "alacritty --class xmonad-scratchpad,xmonad-scratchpad"
+       (className =? "xmonad-scratchpad")
        (customFloating $ W.RationalRect 0.15 0.0 0.7 0.35)
     ]
 
 -- Spawn terminal on current screen
 spawnTerminalHere :: X ()
 spawnTerminalHere = spawnHere "alacritty"
+
+-- Custom layout that reserves upper-right quarter for PIP
+-- Behavior:
+-- 1 window: takes left half (50% width, 100% height)
+-- 2 windows: first takes left half, second takes lower-right quarter
+-- 3+ windows: first takes left half, rest stack vertically on lower-right quarter
+data PIPLayout a = PIPLayout deriving (Read, Show, Eq)
+
+instance LayoutClass PIPLayout Window where
+    pureLayout PIPLayout rect stack = zip windows rects
+      where
+        windows = W.integrate stack
+        screenWidth = rect_width rect
+        screenHeight = rect_height rect
+        screenX = rect_x rect
+        screenY = rect_y rect
+
+        -- Left half: 50% width, full height
+        leftHalf = Rectangle screenX screenY (screenWidth `div` 2) screenHeight
+
+        -- Right lower quarter: 50% width, 50% height, positioned at bottom-right
+        rightLowerStart = screenX + fromIntegral (screenWidth `div` 2)
+        rightLowerTop = screenY + fromIntegral (screenHeight `div` 2)
+        rightLowerWidth = screenWidth `div` 2
+        rightLowerHeight = screenHeight `div` 2
+
+        rects = case length windows of
+            1 -> [leftHalf]
+            2 -> [leftHalf,
+                  Rectangle rightLowerStart rightLowerTop rightLowerWidth rightLowerHeight]
+            _ -> let (first:rest) = windows
+                     -- Stack remaining windows vertically in lower-right quarter
+                     numStacked = length rest
+                     stackHeight = rightLowerHeight `div` fromIntegral numStacked
+                     stackRects = [ Rectangle rightLowerStart
+                                             (rightLowerTop + fromIntegral (i * fromIntegral stackHeight))
+                                             rightLowerWidth
+                                             stackHeight
+                                  | i <- [0..fromIntegral numStacked - 1] ]
+                 in leftHalf : stackRects
+
+    pureMessage _ _ = Nothing
+    description _ = "PIP"
+
+-- PIP-aware layout with spacing
+pipLayout = PIPLayout
 
 main = do
     xmproc <- spawnPipe "xmobar"
@@ -41,7 +93,7 @@ main = do
                       <+> (title =? "Configure Server" --> doFloat)
                       <+> manageSpawn
                       <+> manageHook def
-        , layoutHook = avoidStruts  $  layoutHook def
+        , layoutHook = avoidStruts $ pipLayout ||| Tall 1 (3/100) (1/2) ||| Mirror (Tall 1 (3/100) (1/2)) ||| Full
         , logHook = dynamicLogWithPP xmobarPP
                         { ppOutput = hPutStrLn xmproc
                         , ppTitle = xmobarColor "green" "" . shorten 50
