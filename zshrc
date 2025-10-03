@@ -152,6 +152,7 @@ export PATH="$PNPM_HOME:$PATH"
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONUNBUFFERED=1
 
+expot PATH="/home/valdimar/.claude/local:$PATH"
 # ============================================================================
 # Aliases
 # ============================================================================
